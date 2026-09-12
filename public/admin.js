@@ -819,6 +819,32 @@ function renderCaseTable(cases) {
       `;
     }
 
+    // Status Cell with Student Feedback Indicator
+    let statusBadgeHtml = '';
+    if (c.status === 'RESOLVED' && !c.satisfaction_rating) {
+      statusBadgeHtml = `
+        <span class="table-badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a;">RESOLVED</span>
+        <div style="font-size:10px; color:#d97706; font-weight:600; margin-top:3px; display:flex; align-items:center; gap:3px;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <span>Awaiting Feedback</span>
+        </div>
+      `;
+    } else if (c.status === 'CLOSED' || c.satisfaction_rating) {
+      statusBadgeHtml = `
+        <span class="table-badge" style="background:#dcfce7; color:#15803d; border:1px solid #bbf7d0;">CLOSED</span>
+        <div style="font-size:10px; color:#16a34a; font-weight:600; margin-top:3px; display:flex; align-items:center; gap:2px;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="#eab308" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <span>Feedback: ${c.satisfaction_rating || 5}/5</span>
+        </div>
+      `;
+    } else if (c.status === 'ESCALATED') {
+      statusBadgeHtml = `<span class="table-badge" style="background:#fee2e2; color:#b91c1c;">ESCALATED</span>`;
+    } else if (c.status === 'IN_PROGRESS') {
+      statusBadgeHtml = `<span class="table-badge" style="background:#e0e7ff; color:#4338ca;">IN PROGRESS</span>`;
+    } else {
+      statusBadgeHtml = `<span class="table-badge" style="background:#e0f2fe; color:#0369a1;">${escapeHtml(c.status || 'RECEIVED')}</span>`;
+    }
+
     html += `
       <tr onclick="openCaseDossier('${escapeHtml(c.grievance_no)}')" title="Click to view full case details">
         <td><strong style="color:var(--primary); font-family:monospace; font-size:12.5px;">${escapeHtml(c.grievance_no)}</strong></td>
@@ -826,7 +852,7 @@ function renderCaseTable(cases) {
         <td><span class="problem-snippet" title="${escapeHtml(c.description)}">${escapeHtml(c.description)}</span></td>
         <td>${escapeHtml(formatAdminCategoryName(c.category))}</td>
         <td><span class="table-badge ${sevClass}">${escapeHtml(c.severity || 'NORMAL')}</span></td>
-        <td><span class="table-badge" style="background:#e0f2fe; color:#0369a1;">${escapeHtml(c.status || 'RECEIVED')}</span></td>
+        <td>${statusBadgeHtml}</td>
         <td>${slaHtml}</td>
         <td style="text-align:center;">
           <button type="button" class="btn-view-dossier" onclick="event.stopPropagation(); openCaseDossier('${escapeHtml(c.grievance_no)}')" title="View Case Dossier">
@@ -1029,25 +1055,56 @@ async function openCaseDossier(idOrNo) {
     if (isResolved) {
       if (resBox) resBox.style.display = 'flex';
       if (resActionBox) resActionBox.style.display = 'none';
-      let ratingHtml = '';
+
+      let feedbackBlock = '';
       if (d.satisfaction_rating) {
         let starsSvg = '';
         for (let i = 1; i <= 5; i++) {
           const filled = i <= d.satisfaction_rating;
-          starsSvg += `<svg width="13" height="13" viewBox="0 0 24 24" fill="${filled ? '#eab308' : 'none'}" stroke="${filled ? '#eab308' : '#cbd5e1'}" stroke-width="2" style="margin-right:1px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
+          starsSvg += `<svg width="14" height="14" viewBox="0 0 24 24" fill="${filled ? '#eab308' : 'none'}" stroke="${filled ? '#eab308' : '#cbd5e1'}" stroke-width="2" style="margin-right:1px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
         }
-        ratingHtml = `<span style="display:inline-flex; align-items:center; gap:4px; font-weight:700; color:#a16207;">Student Score: ${d.satisfaction_rating}/5 ${starsSvg}</span>`;
+        feedbackBlock = `
+          <div class="dossier-feedback-received-card">
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+              <div style="display:flex; align-items:center; gap:6px; font-weight:700; color:#15803d; font-size:12.5px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <span>Student Feedback Verified · Case Officially CLOSED</span>
+              </div>
+              <div style="display:inline-flex; align-items:center; gap:4px; background:#fef9c3; border:1px solid #fde047; padding:3px 9px; border-radius:12px; font-size:12px; font-weight:700; color:#854d0e;">
+                <span>${d.satisfaction_rating} / 5 Stars</span>
+                <div style="display:inline-flex; align-items:center;">${starsSvg}</div>
+              </div>
+            </div>
+            ${d.satisfaction_comment ? `
+              <div style="margin-top:8px; font-size:12.5px; color:#1e293b; background:#ffffff; padding:8px 12px; border-radius:6px; border:1px solid #bbf7d0; font-style:italic;">
+                "${escapeHtml(d.satisfaction_comment)}"
+              </div>
+            ` : '<div style="margin-top:4px; font-size:11.5px; color:#64748b; font-style:italic;">No additional written comments provided by student.</div>'}
+          </div>
+        `;
+      } else {
+        feedbackBlock = `
+          <div class="dossier-feedback-pending-card">
+            <div style="display:flex; align-items:center; gap:6px; font-weight:700; color:#b45309; font-size:12.5px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span>Status: RESOLVED · Awaiting Student Redressal Feedback</span>
+            </div>
+            <div style="font-size:12px; color:#92400e; margin-top:4px; line-height:1.45;">
+              Official resolution recorded by authority. Under university grievance redressal protocol, final case closure is completed once the complainant reviews the order and submits their satisfaction rating on the student portal.
+            </div>
+          </div>
+        `;
       }
+
       resContent.innerHTML = `
-        <div style="display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; flex-direction:column; gap:10px;">
           <div style="font-size:13px; color:var(--text-primary); line-height:1.5; background:#f0fdf4; border-left:3.5px solid #16a34a; padding:10px 14px; border-radius:6px;">
             ${escapeHtml(d.resolution || 'Resolution recorded.')}
           </div>
           <div style="font-size:11.5px; color:var(--text-muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; align-items:center;">
             <span><strong>Resolved Date:</strong> ${d.resolved_at ? new Date(d.resolved_at).toLocaleString() : 'N/A'}</span>
-            ${ratingHtml}
           </div>
-          ${d.satisfaction_comment ? `<div style="font-size:12px; color:var(--text-secondary); font-style:italic; margin-top:2px;">"${escapeHtml(d.satisfaction_comment)}"</div>` : ''}
+          ${feedbackBlock}
         </div>
       `;
     } else {

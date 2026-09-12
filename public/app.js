@@ -647,21 +647,47 @@ function renderSearchedCases(cases, regdNo) {
     return;
   }
 
-  list.innerHTML = cases.map(g => {
+  const pendingFeedbackCases = cases.filter(c => c.status === 'RESOLVED' && !c.satisfaction_rating);
+  let bannerHtml = '';
+  if (pendingFeedbackCases.length > 0) {
+    bannerHtml = `
+      <div class="pending-feedback-banner">
+        <div class="pending-feedback-banner-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        </div>
+        <div class="pending-feedback-banner-text">
+          <div class="pending-feedback-title">Action Required: Case Resolved — Mandatory Feedback (${pendingFeedbackCases.length})</div>
+          <div class="pending-feedback-desc">Authority has officially completed redressal for ${pendingFeedbackCases.map(c => c.grievance_no).join(', ')}. Under institutional regulations, student satisfaction feedback is mandatory to finalize official case closure. Click on the case below to submit your rating.</div>
+        </div>
+      </div>
+    `;
+  }
+
+  list.innerHTML = bannerHtml + cases.map(g => {
     let cardClass = 'grievance-card';
     if (g.is_statutory_route) cardClass += ' statutory';
     else if (g.status === 'ESCALATED') cardClass += ' escalated';
     else if (['RESOLVED', 'CLOSED'].includes(g.status)) cardClass += ' resolved';
 
-    const statusLower = (g.status || 'received').toLowerCase();
-    const displayName = g.student_name || g.complainant_name || 'Verified Student';
-    const displayRegd = g.student_regd_no || g.complainant_regd_no || regdNo;
+    const isFeedbackPending = g.status === 'RESOLVED' && !g.satisfaction_rating;
+    const isClosedWithFeedback = g.status === 'CLOSED' || Boolean(g.satisfaction_rating);
+
+    let badgeText = g.status.replace('_', ' ');
+    let badgeClass = `badge-${(g.status || 'received').toLowerCase()}`;
+    if (isFeedbackPending) {
+      badgeText = 'FEEDBACK REQUIRED';
+      badgeClass = 'badge-feedback-required';
+      cardClass += ' card-pending-feedback';
+    } else if (isClosedWithFeedback) {
+      badgeText = 'CLOSED';
+      badgeClass = 'badge-closed-verified';
+    }
 
     return `
       <div class="${cardClass}" onclick="showDetail('${g.grievance_id}')">
         <div class="card-top">
           <span class="card-ref">${g.grievance_no}</span>
-          <span class="card-badge badge-${statusLower}">${g.status.replace('_', ' ')}</span>
+          <span class="card-badge ${badgeClass}">${badgeText}</span>
         </div>
         <p class="card-desc">${escapeHtml(g.description)}</p>
         <div class="card-meta">
@@ -669,8 +695,14 @@ function renderSearchedCases(cases, regdNo) {
           <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${new Date(g.submitted_at).toLocaleDateString()}</span>
           <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:3px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${formatAuthorityName(g.assigned_to_role)}</span>
           ${g.is_statutory_route ? '<span style="color:#d62828;font-weight:600;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;margin-right:3px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Statutory</span>' : ''}
-          ${g.satisfaction_rating ? `<span><svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="none" style="vertical-align:-1px;margin-right:3px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${g.satisfaction_rating}/5</span>` : ''}
+          ${g.satisfaction_rating ? `<span><svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="none" style="vertical-align:-1px;margin-right:3px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>${g.satisfaction_rating}/5</span>` : ''}
         </div>
+        ${isFeedbackPending ? `
+          <div class="card-mandatory-action-strip">
+            <span class="pulse-dot"></span>
+            <span>Action Required: Rate Redressal to Finalize Closure &rarr;</span>
+          </div>
+        ` : ''}
       </div>
     `;
   }).join('');
@@ -761,12 +793,25 @@ function renderDetailModalWithData(g) {
   const studentName = g.complainant_name || g.student_name;
   const studentRoll = g.complainant_regd_no || g.student_regd_no || g.student_username;
   const studentPhone = g.complainant_phone || g.student_phone;
+  const isFeedbackPending = g.status === 'RESOLVED' && !g.satisfaction_rating;
 
   body.innerHTML = `
+    ${isFeedbackPending ? `
+      <div class="mandatory-feedback-modal-banner">
+        <div class="mandatory-feedback-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        </div>
+        <div class="mandatory-feedback-text">
+          <div class="mandatory-feedback-heading">Action Required: Official Redressal Completed — Mandatory Student Feedback</div>
+          <div class="mandatory-feedback-body">The institutional authority has completed official redressal for this case. Under University Redressal Regulations, the complainant must rate the redressal experience and provide remarks below to formally close this case.</div>
+        </div>
+      </div>
+    ` : ''}
+
     <div class="detail-grid">
       <div class="detail-item"><div class="label">Grievance Pathway</div><div class="value">${formatCategoryName(g.category)}</div></div>
       <div class="detail-item"><div class="label">Severity</div><div class="value">${g.severity}</div></div>
-      <div class="detail-item"><div class="label">Status</div><div class="value">${g.status}</div></div>
+      <div class="detail-item"><div class="label">Status</div><div class="value">${isFeedbackPending ? '<span style="color:#b45309;font-weight:700;">RESOLVED (Feedback Pending)</span>' : (g.status === 'CLOSED' || g.satisfaction_rating ? '<span style="color:#15803d;font-weight:700;">CLOSED (Verified)</span>' : g.status)}</div></div>
       <div class="detail-item"><div class="label">Assigned Authority</div><div class="value">${formatAuthorityName(g.assigned_to_role)}</div></div>
       <div class="detail-item"><div class="label">Submitted</div><div class="value">${new Date(g.submitted_at).toLocaleString()}</div></div>
       <div class="detail-item"><div class="label">SLA Deadline</div><div class="value">${g.sla_due_at ? new Date(g.sla_due_at).toLocaleString() : 'N/A'}</div></div>
@@ -799,6 +844,15 @@ function renderDetailModalWithData(g) {
   `;
 
   modal.style.display = 'flex';
+
+  if (isFeedbackPending) {
+    setTimeout(() => {
+      const card = document.getElementById('studentRatingCard');
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 250);
+  }
 }
 
 function closeModal() {
@@ -847,12 +901,15 @@ function renderResolutionAndFeedbackSection(g) {
     html += `
       <div class="student-rating-saved">
         <div class="student-rating-saved-head">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="#eab308" stroke="#ca8a04" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-          <span>Your Redressal Rating & Experience</span>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <span style="font-weight:700; color:#15803d; font-size:13.5px;">Student Redressal Feedback Verified</span>
+          </div>
+          <span class="badge-status-closed-tag">CASE OFFICIALLY CLOSED</span>
         </div>
         <div class="student-rating-saved-stars">
           ${renderStarsSvgDisplay(g.satisfaction_rating)}
-          <strong style="margin-left:6px; color:#854d0e; font-size:13px;">${g.satisfaction_rating} / 5 Stars</strong>
+          <strong style="margin-left:8px; color:#854d0e; font-size:13px;">${g.satisfaction_rating} / 5 Stars (${RATING_LABELS[g.satisfaction_rating] || 'Rated'})</strong>
         </div>
         ${g.satisfaction_comment ? `
           <div class="student-rating-saved-comment">
@@ -863,29 +920,32 @@ function renderResolutionAndFeedbackSection(g) {
     `;
   } else {
     html += `
-      <div class="student-rating-card" id="studentRatingCard">
+      <div class="student-rating-card mandatory-rating-card" id="studentRatingCard">
         <div class="student-rating-header">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="#eab308" stroke="#ca8a04" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-          <span>Rate Your Redressal Experience</span>
+          <div class="mandatory-badge-chip">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>MANDATORY STEP</span>
+          </div>
+          <span class="student-rating-title">Rate Redressal Experience & Confirm Closure</span>
         </div>
         <p class="student-rating-desc">
-          How satisfied are you with this resolution? Select a 1 to 5 star rating and share any feedback remarks to officially finalize this case.
+          Under VFSTR Grievance Redressal Regulations, case closure requires complainant feedback. Select a 1 to 5 star rating reflecting your redressal experience and optionally add remarks to finalize closure.
         </p>
         <div class="student-stars-row" id="studentStarsContainer">
           ${[1, 2, 3, 4, 5].map(starNum => `
-            <button type="button" class="student-star-btn" data-star="${starNum}" onclick="selectStudentStar(${starNum})" onmouseenter="previewStudentStar(${starNum})" onmouseleave="resetStudentStarPreview()" title="${starNum} Stars">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" id="studentStarSvg_${starNum}">
+            <button type="button" class="student-star-btn" data-star="${starNum}" onclick="selectStudentStar(${starNum})" onmouseenter="previewStudentStar(${starNum})" onmouseleave="resetStudentStarPreview()" title="${starNum} Stars — ${RATING_LABELS[starNum]}">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" id="studentStarSvg_${starNum}">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
               </svg>
             </button>
           `).join('')}
         </div>
-        <div class="student-rating-label" id="studentRatingLabel">Click a star to rate (1 to 5)</div>
-        <textarea id="studentFeedbackComment" class="student-feedback-textarea" rows="2" placeholder="Optional remarks or suggestions regarding the redressal process..."></textarea>
+        <div class="student-rating-label" id="studentRatingLabel">Click a star to rate (1 to 5) — Mandatory</div>
+        <textarea id="studentFeedbackComment" class="student-feedback-textarea" rows="2" placeholder="Please provide your feedback remarks or suggestions regarding the redressal process (optional)..."></textarea>
         <div id="studentFeedbackAlert" style="display:none;" class="tracker-alert"></div>
         <button type="button" class="btn-submit-feedback" id="btnSubmitFeedback" onclick="submitStudentFeedback('${g.grievance_id || g.grievance_no}')" disabled>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          <span>Submit Rating & Finalize Case</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Submit Mandatory Rating & Close Case</span>
         </button>
       </div>
     `;
@@ -954,19 +1014,25 @@ function selectStudentStar(num) {
 window.selectStudentStar = selectStudentStar;
 
 async function submitStudentFeedback(grievanceId) {
-  if (!currentSelectedRating || currentSelectedRating < 1 || currentSelectedRating > 5) {
-    alert('Please select a star rating between 1 and 5.');
-    return;
-  }
-
   const commentInput = document.getElementById('studentFeedbackComment');
   const alertEl = document.getElementById('studentFeedbackAlert');
   const btn = document.getElementById('btnSubmitFeedback');
   const comment = commentInput ? commentInput.value.trim() : '';
 
+  if (!currentSelectedRating || currentSelectedRating < 1 || currentSelectedRating > 5) {
+    if (alertEl) {
+      alertEl.className = 'tracker-alert alert-error';
+      alertEl.textContent = 'Please select a star rating between 1 and 5 to finalize case closure.';
+      alertEl.style.display = 'block';
+    } else {
+      alert('Please select a star rating between 1 and 5.');
+    }
+    return;
+  }
+
   if (btn) {
     btn.disabled = true;
-    btn.innerHTML = `<span>Submitting Rating...</span>`;
+    btn.innerHTML = `<svg class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path></svg><span>Submitting Rating...</span>`;
   }
 
   try {
@@ -986,7 +1052,7 @@ async function submitStudentFeedback(grievanceId) {
 
     if (alertEl) {
       alertEl.className = 'tracker-alert alert-success';
-      alertEl.textContent = 'Feedback successfully recorded! Case officially closed.';
+      alertEl.textContent = 'Satisfaction feedback successfully verified! Case is now officially CLOSED.';
       alertEl.style.display = 'block';
     }
 

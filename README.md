@@ -66,12 +66,13 @@ flowchart TD
         Action --> GenLetter["Generate Official University Order\n• Dispatch Ref: VFSTR/GRC/...\n• Statutory Seals & Findings\n• 15-Day Appellate Protocol"]:::resolution
     end
 
-    %% 5. STUDENT NOTIFICATION & FEEDBACK
-    subgraph StudentResolution["5. CLOSURE & FEEDBACK"]
-        GenLetter --> Notify["Student Case Tracking Portal"]:::resolution
-        Notify --> ViewLetter["Download / Print Official Resolution"]:::resolution
-        ViewLetter --> Feedback["Student Submits 1–5 Star Rating\n& Redressal Satisfaction"]:::resolution
-        Feedback --> DB
+    %% 5. STUDENT NOTIFICATION & MANDATORY FEEDBACK
+    subgraph StudentResolution["5. MANDATORY STUDENT FEEDBACK & CLOSURE"]
+        GenLetter --> Notify["Student Case Tracking Portal\n(Status: RESOLVED)"]:::resolution
+        Notify --> ViewLetter["Review Official University Order"]:::resolution
+        ViewLetter --> Feedback["Mandatory Complainant Feedback\n• 1–5 Star Rating (Required)\n• Redressal Remarks"]:::resolution
+        Feedback --> Closure["Official Case Closure\n(Status: CLOSED)"]:::resolution
+        Closure --> DB
     end
 
     %% 6. MULTI-AGENT MESH INTEGRATION

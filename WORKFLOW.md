@@ -63,12 +63,13 @@ flowchart TD
         Action --> GenLetter["Generate Official University Order\n• Dispatch Ref: VFSTR/GRC/...\n• Statutory Seals & Findings\n• 15-Day Appellate Protocol"]:::resolution
     end
 
-    %% 5. STUDENT NOTIFICATION & FEEDBACK
-    subgraph StudentResolution["5. CLOSURE & FEEDBACK"]
-        GenLetter --> Notify["Student Case Tracking Portal"]:::resolution
-        Notify --> ViewLetter["Download / Print Official Resolution"]:::resolution
-        ViewLetter --> Feedback["Student Submits 1–5 Star Rating\n& Redressal Satisfaction"]:::resolution
-        Feedback --> DB
+    %% 5. STUDENT NOTIFICATION & MANDATORY FEEDBACK
+    subgraph StudentResolution["5. MANDATORY STUDENT FEEDBACK & CLOSURE"]
+        GenLetter --> Notify["Student Case Tracking Portal\n(Status: RESOLVED)"]:::resolution
+        Notify --> ViewLetter["Review Official University Order"]:::resolution
+        ViewLetter --> Feedback["Mandatory Complainant Feedback\n• 1–5 Star Rating (Required)\n• Redressal Remarks"]:::resolution
+        Feedback --> Closure["Official Case Closure\n(Status: CLOSED)"]:::resolution
+        Closure --> DB
     end
 
     %% 6. MULTI-AGENT MESH INTEGRATION
@@ -129,7 +130,14 @@ flowchart TD
   - Committee findings and mandatory remedial actions.
   - Official 15-day appellate window allowing students to escalate to the Ombudsperson.
 
-### Step 6: Multi-Agent Mesh Integrations
+### Step 6: Mandatory Student Feedback & Final Case Closure
+- Once the authority records resolution findings, the case enters **`RESOLVED`** status.
+- Under institutional regulations, student satisfaction feedback is **mandatory** to transition the case to **`CLOSED`**:
+  - Both identified students (via Regd No/Phone) and anonymous whistleblowers (via 6-digit Secret PIN) receive an urgent redressal prompt on the student portal.
+  - The complainant must select a **1 to 5 star rating** reflecting redressal quality and may submit written suggestions.
+  - Upon submission (`PUT /api/grievances/:id/satisfaction`), the status is updated to `CLOSED`, audit events (`SATISFACTION_RATED` and `CLOSED`) are appended to the ledger, and the rating appears in the Authority Dossier.
+
+### Step 7: Multi-Agent Mesh Integrations
 Agent 46 communicates with upstream and downstream institutional agents:
 - `GET /api/integrations/agent44/student/:regdNo`: Feeds student grievance history to **Agent 44 (Student 360)**.
 - `POST /api/integrations/agent64/digitize`: Ingests OCR drop-box complaints from **Agent 64 (Physical Intake OCR)**.
