@@ -474,8 +474,15 @@
 
         <!-- Description with Vernacular Voice Dictation Toolbar -->
         <div class="form-group">
-          <div class="desc-header-row">
-            <label for="description">Describe your grievance <span class="char-count" id="charCount">0 / 5000</span></label>
+          <label for="description">Describe your grievance <span class="required">*</span></label>
+          <div class="voice-status-banner" id="voiceStatusBanner" style="display:none;">
+            <div class="voice-recording-pulse"></div>
+            <span id="voiceStatusMsg">Listening... Speak clearly in your selected language.</span>
+          </div>
+          <textarea id="description" rows="6" placeholder="Please describe your grievance in detail. Include dates, names (if applicable), and any evidence references. You can type or speak in Telugu (తెలుగు) or English..." required minlength="20" maxlength="5000"></textarea>
+          
+          <!-- Bottom Action Row: Voice Dictation on Left Down Corner, Character Count on Right -->
+          <div class="desc-footer-row">
             <div class="voice-toolbar" id="voiceToolbar">
               <div class="lang-toggle-group" role="group" aria-label="Voice & Text Language">
                 <button type="button" class="lang-pill active" id="langEnBtn" data-lang="en-IN" title="English language mode">English</button>
@@ -491,12 +498,9 @@
                 <span class="mic-label" id="micStatusText">Voice Dictation</span>
               </button>
             </div>
+            <span class="char-count" id="charCount">0 / 5000</span>
           </div>
-          <div class="voice-status-banner" id="voiceStatusBanner" style="display:none;">
-            <div class="voice-recording-pulse"></div>
-            <span id="voiceStatusMsg">Listening... Speak clearly in your selected language.</span>
-          </div>
-          <textarea id="description" rows="6" placeholder="Please describe your grievance in detail. Include dates, names (if applicable), and any evidence references. You can type or speak in Telugu (తెలుగు) or English..." required minlength="20" maxlength="5000"></textarea>
+
           <div class="vernacular-hint-bar">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
             <span>Native bilingual support: Dictate or type in Telugu (తెలుగు) or English. AI automatically translates and classifies into proper institutional routing.</span>
