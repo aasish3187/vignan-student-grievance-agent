@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <defs>
+    <linearGradient id="nbaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="50%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <filter id="shadowNba" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Circular Base -->
+  <circle cx="40" cy="40" r="38" fill="#ffffff" filter="url(#shadowNba)"/>
+  
+  <!-- Gradient Ring -->
+  <circle cx="40" cy="40" r="36.5" fill="none" stroke="url(#nbaGrad)" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="215 15" stroke-dashoffset="60"/>
+
+  <!-- Content -->
+  <g text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <!-- NBA Header -->
+    <text x="40" y="29" font-size="15" font-weight="900" fill="#f59e0b" letter-spacing="0.8">NBA</text>
+    
+    <!-- TIER-I Pill -->
+    <rect x="23" y="33" width="34" height="9" rx="4.5" fill="#0284c7"/>
+    <text x="40" y="40" font-size="5.5" font-weight="900" fill="#ffffff" letter-spacing="0.5">TIER - I</text>
+
+    <!-- Accredited -->
+    <text x="40" y="52" font-size="5" font-weight="800" fill="#111827" letter-spacing="0.3">ACCREDITED</text>
+    
+    <!-- Programs -->
+    <text x="40" y="60" font-size="4.2" font-weight="700" fill="#4b5563">CSE · ECE · MECH</text>
+    <text x="40" y="66" font-size="4" font-weight="600" fill="#6b7280">EEE · BIOTECH</text>
+  </g>
+</svg>

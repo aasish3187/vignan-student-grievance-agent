@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Agent 46: Student Grievance Portal — Vignan University Agentic AI Day 2026">
+  <title>Student Grievance Portal — Vignan University</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="robot-assistant.css">
+</head>
+<body>
+  <!-- ===== HEADER ===== -->
+  <!-- ===== TOP UNIVERSITY BRANDING & RANKING BADGES PANEL ===== -->
+  <div class="univ-topbar">
+    <div class="univ-topbar-inner">
+      <a href="https://vignan.ac.in" target="_blank" rel="noopener" class="univ-logo-wrap" title="Vignan's Foundation for Science, Technology & Research">
+        <img src="assets/images/vignan-logo.svg" alt="Vignan's Foundation for Science, Technology & Research (Deemed to be University)" class="univ-main-logo">
+      </a>
+      <div class="univ-center-title">
+        <h2 class="univ-agent-title">STUDENT GRIEVANCE REDRESSAL PORTAL</h2>
+        <p class="univ-agent-sub">Central Grievance Redressal Cell · Vignan University</p>
+      </div>
+      <div class="univ-badges-strip" title="Accreditations & National Rankings">
+        <div class="badge-item" title="DSIR Certified Institute (Dept. of Science & Industrial Research)">
+          <img src="assets/images/badge-brush-dsir.png" alt="DSIR Certified">
+        </div>
+        <div class="badge-item" title="NAAC A+ Accredited (3.49 CGPA)">
+          <img src="assets/images/badge-brush-naac.png" alt="NAAC A+">
+        </div>
+        <div class="badge-item" title="NIRF Ranked 70 (Universities)">
+          <img src="assets/images/badge-brush-nirf.png" alt="NIRF 70">
+        </div>
+        <div class="badge-item" title="NBA Accredited Programs (CSE, ECE, EEE, Mech, Biotech)">
+          <img src="assets/images/badge-brush-nba.png" alt="NBA">
+        </div>
+        <div class="badge-item" title="AICTE Approved">
+          <img src="assets/images/badge-brush-aicte.png" alt="AICTE">
+        </div>
+        <div class="badge-item" title="UGC Category-I Deemed to be University">
+          <img src="assets/images/badge-brush-ugc.png" alt="UGC Category-I">
+        </div>
+        <div class="badge-item" title="Bar Council of India / Legal Education Approved">
+          <img src="assets/images/badge-brush-bci.png" alt="Bar Council of India">
+        </div>
+        <div class="badge-item" title="ABET Accredited (CSE, ECE, MECH)">
+          <img src="assets/images/badge-brush-abet.png" alt="ABET">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PORTAL NAVIGATION HEADER ===== -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-right">
+        <a href="/" class="nav-key nav-key-portal active" title="Active: Central Student Grievance Redressal System">
+          <svg class="nav-key-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          <span>Online Portal</span>
+          <span class="nav-pulse-dot" title="Grievance Cell Active"></span>
+        </a>
+        <a href="/login.html?portal=authority" class="nav-key nav-key-officer" title="Access for HoDs, Deans & Grievance Redressal Committee">
+          <svg class="nav-key-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span>Officer Sign-In</span>
+          <span class="nav-auth-badge">AUTH</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <h2>Transparent. Trackable. Fair.</h2>
+        <p>Submit your grievance through a policy-driven pipeline with defined timelines, automatic escalation, and complete transparency. Your voice matters.</p>
+      </div>
+      <div class="hero-stats" id="heroStats">
+        <div class="stat-card">
+          <span class="stat-num" id="statTotal">--</span>
+          <span class="stat-label">Total Cases</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" id="statResolved">--</span>
+          <span class="stat-label">Resolved</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" id="statAvgTime">--</span>
+          <span class="stat-label">Avg Hours</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" id="statSLA">--</span>
+          <span class="stat-label">SLA Compliance</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TAB NAVIGATION ===== -->
+  <main class="main-content">
+    <div class="tabs">
+      <button class="tab active" data-tab="submit" id="tabSubmit">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Submit Grievance
+      </button>
+      <button class="tab" data-tab="track" id="tabTrack">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Track My Grievances
+      </button>
+    </div>
+
+    <!-- ===== SUBMIT TAB ===== -->
+    <div class="tab-content active" id="panelSubmit">
+      <form id="grievanceForm" class="form-card">
+        <h3 class="form-title">File a Grievance</h3>
+
+        <!-- Student Identification Section (Direct Intake) -->
+        <div class="student-ident-card" id="studentIdentCard">
+          <div class="ident-header">
+            <div class="ident-icon-badge">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <div>
+              <h4 class="ident-title">Complainant Identification</h4>
+              <p class="ident-desc">Provide your details for personalized tracking and case resolution feedback. Want complete confidentiality? Enable Anonymous Mode below to skip this section.</p>
+            </div>
+          </div>
+          <div class="ident-grid">
+            <div class="form-group ident-group">
+              <label for="complainantName">Full Name <span class="req-star">*</span></label>
+              <input type="text" id="complainantName" placeholder="e.g. Rahul Mehta" required autocomplete="name">
+            </div>
+            <div class="form-group ident-group">
+              <label for="complainantRegdNo">Registration / Roll No. <span class="req-star">*</span></label>
+              <input type="text" id="complainantRegdNo" placeholder="e.g. 221FA04003" required autocomplete="off" style="text-transform:uppercase;">
+            </div>
+            <div class="form-group ident-group">
+              <label for="complainantPhone">Mobile Number <span class="req-star">*</span></label>
+              <input type="tel" id="complainantPhone" placeholder="e.g. 9876543210" required autocomplete="tel" maxlength="15">
+            </div>
+          </div>
+        </div>
+
+        <!-- Anonymous Toggle -->
+        <div class="anon-toggle">
+          <label class="toggle-wrapper">
+            <input type="checkbox" id="anonToggle">
+            <span class="toggle-slider"></span>
+            <span class="toggle-text">Anonymous Mode (Skip Name, Roll No & Phone)</span>
+          </label>
+          <p class="anon-notice" id="anonNotice" style="display:none;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <strong>Anonymous Whistleblower Protection Active:</strong> Zero personal information or student identity is collected or saved. You will receive an exclusive 6-digit Secret PIN to track your case privately.
+          </p>
+        </div>
+
+        <!-- Category -->
+        <div class="form-group">
+          <label for="category">Grievance Authority & Redressal Pathway</label>
+          <select id="category" style="display:none;">
+            <option value="" selected>Auto-Detect Category with AI Classifier</option>
+            <optgroup label="General Grievances">
+              <option value="ACADEMIC">Academic</option>
+              <option value="EXAMINATION">Examination & Evaluation</option>
+              <option value="FEE">Fee & Financial</option>
+              <option value="HOSTEL">Hostel & Mess</option>
+              <option value="TRANSPORT">Transport</option>
+              <option value="INFRASTRUCTURE">Infrastructure & Facilities</option>
+              <option value="FACULTY_CONDUCT">Faculty Conduct</option>
+            </optgroup>
+            <optgroup label="Statutory Protocols (Direct Committee Route)">
+              <option value="HARASSMENT">Harassment (Internal Complaints Committee)</option>
+              <option value="DISCRIMINATION">Discrimination (Equal Opportunity Cell)</option>
+              <option value="RAGGING">Ragging (Anti-Ragging Squad)</option>
+              <option value="SAFETY">Safety & Security (Campus Security)</option>
+            </optgroup>
+            <option value="OTHER">Other</option>
+          </select>
+
+          <!-- Custom Category Selector with Vibrant Vector Symbols -->
+          <div class="custom-select-wrapper" id="customCategoryWrapper">
+            <button type="button" class="custom-select-trigger" id="customCategoryTrigger" aria-haspopup="listbox" aria-expanded="false">
+              <div class="trigger-left">
+                <span class="symbol-badge badge-ai" id="triggerBadge">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </span>
+                <span class="trigger-label" id="triggerLabel">Auto-Detect Category with AI Classifier</span>
+              </div>
+              <svg class="trigger-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+
+            <!-- Custom Dropdown Menu with Different Sections -->
+            <div class="custom-select-menu" id="customCategoryMenu" role="listbox">
+              <div class="custom-option selected" data-value="" data-title="Auto-Detect Category with AI Classifier" data-badge="badge-ai">
+                <span class="symbol-badge badge-ai">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Auto-Detect Category with AI Classifier</span>
+                  <span class="option-desc">Natural language classifier routes automatically based on policy</span>
+                </div>
+                <span class="option-pill pill-ai">RECOMMENDED</span>
+              </div>
+
+              <!-- SECTION 1: General Grievance Categories -->
+              <div class="custom-group-label">General Grievance Categories</div>
+
+              <div class="custom-option" data-value="ACADEMIC" data-title="Academic" data-badge="badge-blue">
+                <span class="symbol-badge badge-blue">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Academic</span>
+                  <span class="option-desc">Course delivery, syllabus, attendance records, electives</span>
+                </div>
+              </div>
+
+              <div class="custom-option" data-value="EXAMINATION" data-title="Examination & Evaluation" data-badge="badge-amber">
+                <span class="symbol-badge badge-amber">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Examination & Evaluation</span>
+                  <span class="option-desc">Grades, revaluation, grade sheets, hall tickets</span>
+                </div>
+              </div>
+
+              <div class="custom-option" data-value="FEE" data-title="Fee & Financial" data-badge="badge-green">
+                <span class="symbol-badge badge-green">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Fee & Financial</span>
+                  <span class="option-desc">Scholarships, refund requests, fee dues, receipts</span>
+                </div>
+              </div>
+
+              <div class="custom-option" data-value="HOSTEL" data-title="Hostel & Mess" data-badge="badge-indigo">
+                <span class="symbol-badge badge-indigo">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Hostel & Mess</span>
+                  <span class="option-desc">Room maintenance, water, electricity, mess hygiene</span>
+                </div>
+              </div>
+
+              <div class="custom-option" data-value="TRANSPORT" data-title="Transport" data-badge="badge-orange">
+                <span class="symbol-badge badge-orange">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line><circle cx="7" cy="15" r="1.5"></circle><circle cx="17" cy="15" r="1.5"></circle></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Transport</span>
+                  <span class="option-desc">Bus routes, schedules, stops, pass issuance</span>
+                </div>
+              </div>
+
+              <div class="custom-option" data-value="INFRASTRUCTURE" data-title="Infrastructure & Facilities" data-badge="badge-purple">
+                <span class="symbol-badge badge-purple">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Infrastructure & Facilities</span>
+                  <span class="option-desc">Classroom tech, lab equipment, library, sports</span>
+                </div>
+              </div>
+
+              <div class="custom-option" data-value="FACULTY_CONDUCT" data-title="Faculty Conduct" data-badge="badge-slate">
+                <span class="symbol-badge badge-slate">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Faculty Conduct</span>
+                  <span class="option-desc">Professionalism, impartiality, grievance redressal</span>
+                </div>
+              </div>
+
+              <!-- SECTION 2: Statutory Protocols (Direct Committee Route) -->
+              <div class="custom-group-label statutory-group-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>Statutory Protocols (Direct Committee Route)</span>
+              </div>
+
+              <div class="custom-option statutory-option" data-value="HARASSMENT" data-title="Harassment" data-badge="badge-red">
+                <span class="symbol-badge badge-red">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Harassment</span>
+                  <span class="option-desc">Direct referral to Internal Complaints Committee (POSH Act)</span>
+                </div>
+                <span class="option-pill pill-statutory">ICC ROUTE</span>
+              </div>
+
+              <div class="custom-option statutory-option" data-value="DISCRIMINATION" data-title="Discrimination" data-badge="badge-red">
+                <span class="symbol-badge badge-red">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"></line><path d="M5 6h14"></path><path d="M4 10l3-4 3 4"></path><path d="M14 10l3-4 3 4"></path><path d="M2 14h6"></path><path d="M16 14h6"></path></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Discrimination</span>
+                  <span class="option-desc">Direct referral to Equal Opportunity Cell (SC/ST/OBC/Minority)</span>
+                </div>
+                <span class="option-pill pill-statutory">EOC ROUTE</span>
+              </div>
+
+              <div class="custom-option statutory-option" data-value="RAGGING" data-title="Ragging" data-badge="badge-red">
+                <span class="symbol-badge badge-red">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Ragging</span>
+                  <span class="option-desc">Zero-tolerance direct emergency route to Anti-Ragging Committee</span>
+                </div>
+                <span class="option-pill pill-statutory">UGC MANDATE</span>
+              </div>
+
+              <div class="custom-option statutory-option" data-value="SAFETY" data-title="Safety & Security" data-badge="badge-red">
+                <span class="symbol-badge badge-red">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Safety & Security</span>
+                  <span class="option-desc">Direct alert to Chief Security Officer & Campus Security</span>
+                </div>
+                <span class="option-pill pill-statutory">SECURITY</span>
+              </div>
+
+              <div class="custom-option" data-value="OTHER" data-title="Other" data-badge="badge-slate">
+                <span class="symbol-badge badge-slate">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Other Grievance</span>
+                  <span class="option-desc">General student welfare and campus facilities</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statutory Warning -->
+        <div class="statutory-warning" id="statutoryWarning">
+          <div class="warning-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div>
+            <strong>Statutory Category Detected</strong>
+            <p>This grievance will be routed <strong>directly</strong> to the designated statutory committee. It will NOT be summarized, triaged, or processed by any automated system. The agent's role is intake, routing, and timeline tracking only.</p>
+          </div>
+        </div>
+
+        <!-- Department -->
+        <div class="form-group">
+          <label for="department">Academic Department</label>
+          <select id="department" style="display:none;">
+            <option value="">— Select Department —</option>
+            <option value="CSE">Computer Science & Engineering</option>
+            <option value="ECE">Electronics & Communication</option>
+            <option value="MECH">Mechanical Engineering</option>
+            <option value="CIVIL">Civil Engineering</option>
+            <option value="IT">Information Technology</option>
+            <option value="MBA">MBA</option>
+          </select>
+
+          <!-- Custom Department Selector with Vibrant Vector Symbols -->
+          <div class="custom-select-wrapper" id="customDepartmentWrapper">
+            <button type="button" class="custom-select-trigger" id="customDepartmentTrigger" aria-haspopup="listbox" aria-expanded="false">
+              <div class="trigger-left">
+                <span class="symbol-badge badge-slate" id="triggerDeptBadge">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V7l8-4v18"></path><path d="M19 21V11l-6-4"></path><line x1="9" y1="9" x2="9" y2="9.01"></line><line x1="9" y1="13" x2="9" y2="13.01"></line><line x1="9" y1="17" x2="9" y2="17.01"></line></svg>
+                </span>
+                <span class="trigger-label" id="triggerDeptLabel">— Select Department —</span>
+              </div>
+              <svg class="trigger-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+
+            <!-- Custom Dropdown Menu with Department SVG Symbols -->
+            <div class="custom-select-menu" id="customDepartmentMenu" role="listbox">
+              <div class="custom-option selected" data-value="" data-title="— Select Department —" data-badge="badge-slate">
+                <span class="symbol-badge badge-slate">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V7l8-4v18"></path><path d="M19 21V11l-6-4"></path><line x1="9" y1="9" x2="9" y2="9.01"></line><line x1="9" y1="13" x2="9" y2="13.01"></line><line x1="9" y1="17" x2="9" y2="17.01"></line></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">— Select Department —</span>
+                  <span class="option-desc">General campus-wide / Institutional</span>
+                </div>
+                <span class="option-pill pill-dept">CAMPUS</span>
+              </div>
+
+              <div class="custom-group-label">Academic Engineering & Management Departments</div>
+
+              <div class="custom-option" data-value="CSE" data-title="Computer Science & Engineering" data-badge="badge-blue">
+                <span class="symbol-badge badge-blue">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Computer Science & Engineering</span>
+                  <span class="option-desc">B.Tech CSE, AI/ML, Cyber Security & Data Science</span>
+                </div>
+                <span class="option-pill pill-dept">CSE DEPT</span>
+              </div>
+
+              <div class="custom-option" data-value="ECE" data-title="Electronics & Communication" data-badge="badge-amber">
+                <span class="symbol-badge badge-amber">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Electronics & Communication</span>
+                  <span class="option-desc">B.Tech ECE, Embedded Systems, IoT & VLSI Design</span>
+                </div>
+                <span class="option-pill pill-dept">ECE DEPT</span>
+              </div>
+
+              <div class="custom-option" data-value="MECH" data-title="Mechanical Engineering" data-badge="badge-orange">
+                <span class="symbol-badge badge-orange">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Mechanical Engineering</span>
+                  <span class="option-desc">B.Tech Mechanical, Robotics, Mechatronics & CAD/CAM</span>
+                </div>
+                <span class="option-pill pill-dept">MECH DEPT</span>
+              </div>
+
+              <div class="custom-option" data-value="CIVIL" data-title="Civil Engineering" data-badge="badge-green">
+                <span class="symbol-badge badge-green">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22h20"></path><path d="M6 18v4"></path><path d="M10 18v4"></path><path d="M14 18v4"></path><path d="M18 18v4"></path><polygon points="12 2 2 7 22 7 12 2"></polygon><rect x="4" y="7" width="16" height="11"></rect></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Civil Engineering</span>
+                  <span class="option-desc">B.Tech Civil, Structural, Geotechnical & Environmental</span>
+                </div>
+                <span class="option-pill pill-dept">CIVIL DEPT</span>
+              </div>
+
+              <div class="custom-option" data-value="IT" data-title="Information Technology" data-badge="badge-purple">
+                <span class="symbol-badge badge-purple">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">Information Technology</span>
+                  <span class="option-desc">B.Tech IT, Cloud Computing, Networks & Software Systems</span>
+                </div>
+                <span class="option-pill pill-dept">IT DEPT</span>
+              </div>
+
+              <div class="custom-option" data-value="MBA" data-title="MBA" data-badge="badge-indigo">
+                <span class="symbol-badge badge-indigo">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                </span>
+                <div class="option-details">
+                  <span class="option-title">MBA</span>
+                  <span class="option-desc">School of Management Studies, Finance, HR & Marketing</span>
+                </div>
+                <span class="option-pill pill-dept">MBA DEPT</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="description">Describe your grievance <span class="char-count" id="charCount">0 / 5000</span></label>
+          <textarea id="description" rows="6" placeholder="Please describe your grievance in detail. Include dates, names (if applicable), and any evidence references..." required minlength="20" maxlength="5000"></textarea>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-primary" id="submitBtn">
+          <span class="btn-text">Submit Grievance</span>
+          <span class="btn-loading" style="display:none">Submitting...</span>
+        </button>
+      </form>
+
+      <!-- Success Card (hidden initially) -->
+      <div class="success-card" id="successCard" style="display:none">
+        <div class="success-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="16 9 10 15 7 12"/></svg>
+        </div>
+        <h3>Grievance Submitted Successfully</h3>
+        <div class="success-details" id="successDetails"></div>
+        <button class="btn-secondary" onclick="resetForm()">Submit Another</button>
+      </div>
+    </div>
+
+    <!-- ===== TRACK TAB ===== -->
+    <div class="tab-content" id="panelTrack">
+      <div class="track-privacy-banner">
+        <div class="privacy-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <div>
+          <h4 class="privacy-title">Confidential & Private Redressal Tracking</h4>
+          <p class="privacy-desc">In adherence to institutional privacy regulations, grievances are <strong>never displayed publicly</strong>. Enter your verification credentials below to privately view and track only your cases.</p>
+        </div>
+      </div>
+
+      <!-- Tracker Dual Access Panels -->
+      <div class="trackers-grid">
+        <!-- Panel A: Personal Student Grievance Tracker -->
+        <div class="tracker-card student-tracker-card" id="studentTrackerCard">
+          <div class="tracker-card-header">
+            <div class="tracker-icon student-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+            </div>
+            <div>
+              <h4 class="tracker-card-title">Student Personal Grievances</h4>
+              <p class="tracker-card-desc">Enter your University Registration Number and Registered Mobile Number to securely access complaints filed under your identity.</p>
+            </div>
+          </div>
+          <form id="studentTrackForm" class="tracker-form" onsubmit="searchStudentGrievances(event)">
+            <div class="tracker-form-row">
+              <div class="tracker-input-group">
+                <label for="searchRegdNo">Registration / Roll No.</label>
+                <input type="text" id="searchRegdNo" placeholder="e.g. 221FA04001" required autocomplete="off" style="text-transform:uppercase;">
+              </div>
+              <div class="tracker-input-group">
+                <label for="searchPhone">Registered Mobile No.</label>
+                <input type="tel" id="searchPhone" placeholder="e.g. 9876543210" required autocomplete="tel">
+              </div>
+              <button type="submit" class="btn-track-submit" id="btnStudentTrack">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span>Search My Grievances</span>
+              </button>
+            </div>
+            <div id="studentTrackAlert" style="display:none;" class="tracker-alert"></div>
+          </form>
+        </div>
+
+        <!-- Panel B: Confidential Whistleblower PIN Lookup Card -->
+        <div class="tracker-card anon-tracker-card" id="anonTrackerCard">
+          <div class="tracker-card-header">
+            <div class="tracker-icon anon-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <div>
+              <h4 class="tracker-card-title">Anonymous Whistleblower Tracker</h4>
+              <p class="tracker-card-desc">Track a confidential grievance filed in anonymous mode or submit satisfaction feedback using your 6-digit Secret PIN.</p>
+            </div>
+          </div>
+          <form id="anonTrackForm" class="tracker-form" onsubmit="handleAnonymousTrack(event)">
+            <div class="tracker-form-row">
+              <div class="tracker-input-group">
+                <label for="anonRefNo">Grievance Ref No.</label>
+                <input type="text" id="anonRefNo" placeholder="e.g. GRV-2026-12345" required autocomplete="off" style="text-transform:uppercase;">
+              </div>
+              <div class="tracker-input-group">
+                <label for="anonPin">6-Digit Secret PIN</label>
+                <input type="password" id="anonPin" placeholder="e.g. 427981" maxlength="6" pattern="[0-9]{6}" required autocomplete="off">
+              </div>
+              <button type="submit" class="btn-track-submit btn-track-pin" id="btnTrackPin">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span>Lookup Case</span>
+              </button>
+            </div>
+            <div id="anonTrackAlert" style="display:none;" class="tracker-alert"></div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Private Grievance Directory Results -->
+      <div class="student-cases-section" id="studentCasesSection">
+        <div class="track-header" id="trackHeaderContainer" style="display:none;">
+          <div>
+            <h3 class="form-title" id="trackHeaderTitle">My Verified Grievances</h3>
+            <p id="trackHeaderSub" style="font-size:12px; color:var(--text-secondary); margin-top:2px;"></p>
+          </div>
+          <div class="track-filters">
+            <select id="filterStatus" class="filter-select" onchange="filterSearchedCases()">
+              <option value="">All Statuses</option>
+              <option value="RECEIVED">Received</option>
+              <option value="ASSIGNED">Assigned</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="ESCALATED">Escalated</option>
+              <option value="RESOLVED">Resolved</option>
+              <option value="CLOSED">Closed</option>
+              <option value="APPEALED">Appealed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grievance-list" id="grievanceList">
+          <div class="privacy-initial-card">
+            <div class="privacy-initial-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+            </div>
+            <h4 style="font-size:16px; font-weight:700; color:var(--primary-dark); margin-bottom:6px;">Personal Grievance Records Are Protected</h4>
+            <p style="font-size:13px; color:var(--text-secondary); max-width:540px; margin:0 auto; line-height:1.6;">
+              Please enter your <strong>Registration / Roll Number</strong> and <strong>Registered Mobile Number</strong> above to load only the grievances you personally filed. If you filed confidentially, enter your <strong>Grievance Ref No.</strong> and <strong>6-digit Secret PIN</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== DETAIL MODAL ===== -->
+  <div class="modal-overlay" id="modalOverlay" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Grievance Details</h3>
+        <button class="modal-close" onclick="closeModal()" title="Close dialog">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- ===== OFFICIAL RESOLUTION LETTER MODAL ===== -->
+  <div class="modal-overlay dossier-overlay" id="resolutionLetterModal" style="display:none;" onclick="if(event.target === this) closeResolutionLetterModal()" role="dialog" aria-modal="true" aria-labelledby="resolutionLetterModalTitle">
+    <div class="letter-modal-card">
+      <div class="letter-modal-actions">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span id="resolutionLetterModalTitle" style="font-weight:700; font-size:13px; letter-spacing:0.3px;">Official University Redressal Order</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button type="button" class="btn-print-letter" onclick="window.print()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            <span>Print / Save as PDF</span>
+          </button>
+          <button type="button" class="dossier-close-btn" onclick="closeResolutionLetterModal()" title="Close Letter">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+      </div>
+      <div class="letter-scroll-wrap">
+        <div class="letter-paper" id="resolutionLetterPaper">
+          <p class="empty-state">Loading formal resolution letter...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p>© 2026 Vignan's Foundation for Science, Technology & Research (Deemed to be University). All rights reserved.</p>
+    <p style="font-size:12px; margin-top:4px; opacity:0.8;">Student Grievance Redressal Monitoring System · UGC Mandated Redressal Mechanism</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="robot-assistant.js"></script>
+</body>
+</html>

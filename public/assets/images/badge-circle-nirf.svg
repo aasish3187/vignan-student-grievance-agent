@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <defs>
+    <linearGradient id="nirfGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d62828"/>
+      <stop offset="45%" stop-color="#702896"/>
+      <stop offset="100%" stop-color="#163675"/>
+    </linearGradient>
+    <filter id="shadowNirf" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Circular Base -->
+  <circle cx="40" cy="40" r="38" fill="#ffffff" filter="url(#shadowNirf)"/>
+  
+  <!-- Gradient Ring -->
+  <circle cx="40" cy="40" r="36.5" fill="none" stroke="url(#nirfGrad)" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="210 20" stroke-dashoffset="35"/>
+
+  <!-- Content -->
+  <g text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <!-- nirf brand -->
+    <text x="40" y="27" font-size="14" font-weight="900" fill="#0f2b5c" letter-spacing="-0.5">nirf</text>
+    
+    <!-- Red line separator -->
+    <line x1="26" y1="31" x2="54" y2="31" stroke="#d62828" stroke-width="1.2"/>
+    
+    <text x="40" y="39" font-size="5.2" font-weight="700" fill="#4b5563">Universities</text>
+    
+    <!-- 70th Rank -->
+    <text x="37" y="53" font-size="14" font-weight="900" fill="#d62828">70</text>
+    <text x="48" y="47" font-size="7" font-weight="800" fill="#d62828">th</text>
+
+    <!-- Rank badge -->
+    <text x="40" y="64" font-size="4.8" font-weight="800" fill="#163675" letter-spacing="0.3">RANKING 2024</text>
+  </g>
+</svg>

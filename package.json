@@ -1,0 +1,26 @@
+{
+  "name": "agent46-student-grievance",
+  "version": "1.0.0",
+  "description": "Agent 46: Student Grievance Agent — Transparent, trackable grievance management pipeline for Vignan University",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "node-cron": "^3.0.3",
+    "sql.js": "^1.14.2",
+    "uuid": "^10.0.0"
+  },
+  "keywords": [
+    "grievance",
+    "agent",
+    "vignan",
+    "hackathon",
+    "agentic-ai"
+  ],
+  "author": "Vignan University — Agentic AI Day 2026",
+  "license": "MIT"
+}

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <defs>
+    <linearGradient id="naacGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#163675"/>
+      <stop offset="45%" stop-color="#6c2d91"/>
+      <stop offset="85%" stop-color="#d62828"/>
+      <stop offset="100%" stop-color="#f07167"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Circular Base -->
+  <circle cx="40" cy="40" r="38" fill="#ffffff" filter="url(#shadow)"/>
+  
+  <!-- Swirling Gradient Ring -->
+  <circle cx="40" cy="40" r="36.5" fill="none" stroke="url(#naacGrad)" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="215 15" stroke-dashoffset="10"/>
+
+  <!-- Inner Content -->
+  <g text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <!-- NAAC Header -->
+    <text x="40" y="24" font-size="9" font-weight="900" fill="#111827" letter-spacing="0.4">NAAC</text>
+    <line x1="27" y1="27" x2="53" y2="27" stroke="#9ca3af" stroke-width="0.8"/>
+
+    <!-- Prominent A+ -->
+    <text x="36" y="47" font-size="20" font-weight="900" fill="#d62828">A</text>
+    <text x="49" y="41" font-size="13" font-weight="900" fill="#d62828">+</text>
+
+    <!-- Accreditation Details -->
+    <text x="40" y="57" font-size="5" font-weight="800" fill="#163675" letter-spacing="0.2">GRADE (3.49/4)</text>
+    <text x="40" y="65" font-size="4.2" font-weight="600" fill="#6b7280">Accredited Univ</text>
+  </g>
+</svg>

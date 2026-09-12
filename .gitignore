@@ -1,0 +1,14 @@
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.local
+.DS_Store
+Thumbs.db
+.playwright-mcp/
+*.log
+scratch/
+scratch_*
+*.db-shm
+*.db-wal

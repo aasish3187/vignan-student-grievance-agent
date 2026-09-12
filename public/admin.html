@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Agent 46: Admin Analytics Dashboard — Student Grievance Management">
+  <title>Admin Dashboard — Grievance Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <!-- ===== TOP UNIVERSITY BRANDING & RANKING BADGES PANEL ===== -->
+  <div class="univ-topbar">
+    <div class="univ-topbar-inner">
+      <a href="https://vignan.ac.in" target="_blank" rel="noopener" class="univ-logo-wrap" title="Vignan's Foundation for Science, Technology & Research">
+        <img src="assets/images/vignan-logo.svg" alt="Vignan's Foundation for Science, Technology & Research (Deemed to be University)" class="univ-main-logo">
+      </a>
+      <div class="univ-center-title">
+        <h2 class="univ-agent-title">STUDENT GRIEVANCE REDRESSAL PORTAL</h2>
+        <p class="univ-agent-sub">Central Grievance Redressal Cell · Vignan University</p>
+      </div>
+      <div class="univ-badges-strip" title="Accreditations & National Rankings">
+        <div class="badge-item" title="DSIR Certified Institute (Dept. of Science & Industrial Research)">
+          <img src="assets/images/badge-brush-dsir.png" alt="DSIR Certified">
+        </div>
+        <div class="badge-item" title="NAAC A+ Accredited (3.49 CGPA)">
+          <img src="assets/images/badge-brush-naac.png" alt="NAAC A+">
+        </div>
+        <div class="badge-item" title="NIRF Ranked 70 (Universities)">
+          <img src="assets/images/badge-brush-nirf.png" alt="NIRF 70">
+        </div>
+        <div class="badge-item" title="NBA Accredited Programs (CSE, ECE, EEE, Mech, Biotech)">
+          <img src="assets/images/badge-brush-nba.png" alt="NBA">
+        </div>
+        <div class="badge-item" title="AICTE Approved">
+          <img src="assets/images/badge-brush-aicte.png" alt="AICTE">
+        </div>
+        <div class="badge-item" title="UGC Category-I Deemed to be University">
+          <img src="assets/images/badge-brush-ugc.png" alt="UGC Category-I">
+        </div>
+        <div class="badge-item" title="Bar Council of India / Legal Education Approved">
+          <img src="assets/images/badge-brush-bci.png" alt="Bar Council of India">
+        </div>
+        <div class="badge-item" title="ABET Accredited (CSE, ECE, MECH)">
+          <img src="assets/images/badge-brush-abet.png" alt="ABET">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN HEADER ===== -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="/admin.html" class="header-brand" title="Vignan University Grievance Redressal Monitoring & Analytics Console">
+        <div class="portal-badge-icon" title="Official Seal — Vignan's Foundation for Science, Technology & Research">
+          <svg viewBox="9 8 128 145" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M85.8016 63.8012C87.4016 66.2012 88.3016 68.9012 88.4016 71.8012L120.802 82.3012C120.102 85.7012 119.002 89.1012 117.502 92.4012L85.1016 81.9012C83.3016 84.2012 81.0016 85.9012 78.3016 86.9012V120.801C74.8016 121.201 71.2016 121.201 67.7016 120.801V86.8012C65.0016 85.8012 62.7016 84.1012 60.9016 81.8012L28.4016 92.4012C26.9016 89.2012 25.8016 85.8012 25.1016 82.3012L57.5016 71.8012C57.6016 68.9012 58.5016 66.2012 60.1016 63.8012L40.1016 36.4012C42.7016 34.0012 45.6016 31.9012 48.7016 30.2012L68.7016 57.6012C71.4016 56.8012 74.4016 56.8012 77.1016 57.6012L97.1016 30.2012C100.202 31.9012 103.102 34.0012 105.702 36.4012L85.8016 63.8012ZM66.9016 81.4012C68.7016 82.6012 70.8016 83.2012 73.0016 83.2012C75.9016 83.2012 78.7016 82.0012 80.7016 80.0012C82.7016 78.0012 83.9016 75.2012 83.9016 72.3012C83.9016 70.1012 83.2016 68.1012 82.1016 66.3012C80.9016 64.5012 79.2016 63.1012 77.2016 62.3012C75.2016 61.5012 73.0016 61.3012 70.9016 61.7012C68.8016 62.1012 66.8016 63.2012 65.3016 64.7012C63.8016 66.2012 62.7016 68.1012 62.3016 70.3012C61.9016 72.4012 62.1016 74.6012 62.9016 76.6012C63.6016 78.6012 65.1016 80.3012 66.9016 81.4012ZM76.9016 73.7012L79.3016 81.2012L73.0016 76.5012L66.6016 81.1012L69.0016 73.6012L62.7016 69.0012H70.6016L73.0016 61.5012L75.4016 69.0012H83.3016L76.9016 73.7012Z" fill="#ffffff"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M73.0008 50.2012L90.7008 27.0012C79.3008 22.6012 66.7008 22.6012 55.3008 27.0012L73.0008 50.2012Z" fill="#93c5fd"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M51.8016 65.5016L24.2016 75.1016C24.2016 74.2016 24.1016 73.3016 24.1016 72.4016C24.1016 61.2016 28.0016 50.3016 35.1016 41.6016L51.8016 65.5016Z" fill="#93c5fd"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M31.9023 98.7008C38.5023 108.901 48.7023 116.301 60.5023 119.401C60.4023 112.601 60.0023 97.0008 59.9023 90.3008L31.9023 98.7008Z" fill="#93c5fd"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M114.002 98.7012C107.402 108.901 97.2023 116.301 85.4023 119.401C85.4023 116.401 85.5023 111.701 85.7023 106.701C85.8023 100.501 86.0023 94.0012 86.0023 90.2012L114.002 98.7012Z" fill="#93c5fd"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M121.699 75.1016C121.699 74.2016 121.799 73.3016 121.799 72.4016C121.799 61.2016 117.899 50.3016 110.799 41.6016L94.1992 65.5016L121.699 75.1016Z" fill="#93c5fd"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M133.501 8.30078H13.1008H9.30078V12.1008V71.8008C9.30078 84.5008 12.4008 96.9008 18.3008 107.901C24.2008 118.901 32.7008 128.201 43.0008 134.701L68.6008 150.901C70.0008 151.801 71.6008 152.301 73.2008 152.301C74.9008 152.301 76.5008 151.801 77.8008 150.901L103.401 134.701C113.701 128.201 122.201 118.901 128.101 107.901C134.001 96.9008 137.101 84.4008 137.101 71.8008V12.1008V8.30078H133.501ZM130.001 71.5008C130.001 82.9008 127.201 94.2008 121.901 104.101C116.601 114.001 109.001 122.301 99.8008 128.101L74.2008 144.301C74.0008 144.401 73.8008 144.501 73.6008 144.501C73.4008 144.501 73.2008 144.501 73.0008 144.301L47.2008 128.001C38.1008 122.201 30.4008 113.901 25.2008 104.001C19.9008 94.1008 17.1008 82.8008 17.1008 71.4008V15.6008H129.901L130.001 71.5008Z" fill="#93c5fd"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">GRIEVANCE REDRESSAL MONITORING & ANALYTICS</h1>
+          <p class="brand-sub">Executive Cell · HoD & Dean Oversight Console</p>
+        </div>
+      </a>
+      <div class="header-right">
+        <!-- Active Authority Officer Badge -->
+        <div class="header-authority-badge" id="authorityBadge" title="Active Institutional Authority Session">
+          <div class="authority-avatar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div class="authority-meta">
+            <span class="authority-title" id="authTitle">Head of Department (CSE)</span>
+            <span class="authority-role-tag" id="authRoleTag">HOD</span>
+          </div>
+        </div>
+
+        <button class="nav-key nav-key-action" onclick="triggerSLACheck()" title="Run statutory SLA compliance scan & trigger HoD/Dean escalations">
+          <svg class="nav-key-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>Run SLA Scan</span>
+        </button>
+
+        <button type="button" class="nav-key nav-key-portal" onclick="confirmSwitchToPortal()" title="Switch to Public Student Grievance Portal (Requires Logout)">
+          <svg class="nav-key-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          <span>Student Portal</span>
+        </button>
+
+        <button class="nav-key nav-key-logout" onclick="handleLogout()" title="Terminate session and return to Authority Login">
+          <svg class="nav-key-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <!-- ===== JURISDICTION SCOPE BAR ===== -->
+    <section class="jurisdiction-scope-bar" id="scopeBar">
+      <div class="scope-bar-left">
+        <div class="scope-icon-box" id="scopeIcon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+        <div class="scope-details">
+          <div class="scope-badge-line">
+            <span class="scope-type-tag" id="scopeTypeTag">STATUTORY JURISDICTION</span>
+            <span class="scope-mandate-title" id="scopeMandateTitle">Anti-Ragging Committee Squad</span>
+          </div>
+          <p class="scope-description" id="scopeDesc">Showing strictly cases registered under the active institutional oversight mandate.</p>
+        </div>
+      </div>
+      <div class="scope-bar-right">
+        <div class="scope-stat-pill">
+          <span class="scope-stat-num" id="scopeCaseCount">--</span>
+          <span class="scope-stat-label">Cases in Jurisdiction</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== KPI ROW ===== -->
+    <section class="kpi-row" id="kpiRow">
+      <div class="kpi-card interactive" id="kpiCardTotal" onclick="filterCaseRegisterByKPI('ALL')" title="Click to view all cases in Case Register">
+        <div class="kpi-icon kpi-blue">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+        </div>
+        <div class="kpi-num" id="kpiTotal">--</div>
+        <div class="kpi-label">Total Cases</div>
+        <span class="kpi-action-hint">View Cases</span>
+      </div>
+      <div class="kpi-card interactive" id="kpiCardOpen" onclick="filterCaseRegisterByKPI('OPEN')" title="Click to view open/active cases">
+        <div class="kpi-icon kpi-orange">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+        </div>
+        <div class="kpi-num" id="kpiOpen">--</div>
+        <div class="kpi-label">Open</div>
+        <span class="kpi-action-hint">Filter Open</span>
+      </div>
+      <div class="kpi-card interactive" id="kpiCardResolved" onclick="filterCaseRegisterByKPI('RESOLVED')" title="Click to view resolved cases">
+        <div class="kpi-icon kpi-green">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <div class="kpi-num" id="kpiResolved">--</div>
+        <div class="kpi-label">Resolved</div>
+        <span class="kpi-action-hint">Filter Resolved</span>
+      </div>
+      <div class="kpi-card interactive" id="kpiCardEscalated" onclick="filterCaseRegisterByKPI('ESCALATED')" title="Click to view escalated cases">
+        <div class="kpi-icon kpi-red">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        </div>
+        <div class="kpi-num" id="kpiEscalated">--</div>
+        <div class="kpi-label">Escalated</div>
+        <span class="kpi-action-hint">Filter Escalated</span>
+      </div>
+      <div class="kpi-card" id="kpiCardAvgTime">
+        <div class="kpi-icon kpi-purple">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div class="kpi-num" id="kpiAvgTime">--</div>
+        <div class="kpi-label">Avg Hours</div>
+      </div>
+      <div class="kpi-card interactive" id="kpiCardSLA" onclick="filterCaseRegisterByKPI('CRITICAL')" title="Click to view critical / SLA sensitive cases">
+        <div class="kpi-icon kpi-teal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        </div>
+        <div class="kpi-num" id="kpiSLA">--</div>
+        <div class="kpi-label">SLA Compliance</div>
+        <span class="kpi-action-hint">Review SLA</span>
+      </div>
+    </section>
+
+    <!-- ===== SYSTEMIC ALERTS ===== -->
+    <section class="alerts-section" id="alertsSection" style="display:none">
+      <h2 class="section-title">
+        <svg class="section-title-icon text-red" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Systemic Pattern Alerts
+      </h2>
+      <div class="alerts-grid" id="alertsGrid"></div>
+    </section>
+
+    <!-- ===== CHARTS GRID ===== -->
+    <section class="charts-grid">
+      <div class="chart-card">
+        <h3>Grievances by Category</h3>
+        <canvas id="chartCategory"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Department Distribution</h3>
+        <canvas id="chartDepartment"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>SLA Compliance by Category</h3>
+        <canvas id="chartSLA"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Satisfaction Distribution</h3>
+        <canvas id="chartSatisfaction"></canvas>
+      </div>
+    </section>
+
+    <!-- ===== HEATMAP ===== -->
+    <section class="section-card">
+      <h2 class="section-title">
+        <svg class="section-title-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+        Department × Category Heatmap
+      </h2>
+      <div class="heatmap-wrapper" id="heatmapWrapper">
+        <p class="empty-state">Loading heatmap...</p>
+      </div>
+    </section>
+
+    <!-- ===== ESCALATION LOG ===== -->
+    <section class="section-card">
+      <h2 class="section-title">
+        <svg class="section-title-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="18" x2="12" y2="6"/></svg>
+        Escalation Log
+      </h2>
+      <div class="escalation-log" id="escalationLog">
+        <p class="empty-state">Loading escalation events...</p>
+      </div>
+    </section>
+
+    <!-- ===== CASE REGISTER ===== -->
+    <section class="section-card" id="caseRegisterSection">
+      <div class="section-head-flex">
+        <div>
+          <h2 class="section-title">
+            <svg class="section-title-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Case Register & Incident Audit
+          </h2>
+          <p class="section-subtitle">Click any case row or the View Dossier action button to inspect complete complainant details, problem narrative, AI routing, and lifecycle events.</p>
+        </div>
+        <div class="case-counter-badge" id="caseCounterBadge">
+          Showing 0 cases
+        </div>
+      </div>
+
+      <!-- Case Register Control Toolbar -->
+      <div class="case-toolbar">
+        <div class="case-search-wrap">
+          <svg class="case-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="caseSearchInput" class="case-search-input" placeholder="Search by Ref No, Complainant, Dept, Keywords..." oninput="handleCaseSearch(this.value)">
+          <button type="button" id="caseSearchClear" class="case-search-clear" onclick="clearCaseSearch()" style="display:none;" title="Clear search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <div class="case-filter-pills" id="caseFilterPills">
+          <button type="button" class="filter-pill active" data-filter="ALL" onclick="setCaseFilter('ALL')">All Cases</button>
+          <button type="button" class="filter-pill" data-filter="OPEN" onclick="setCaseFilter('OPEN')">Open / Active</button>
+          <button type="button" class="filter-pill" data-filter="RESOLVED" onclick="setCaseFilter('RESOLVED')">Resolved</button>
+          <button type="button" class="filter-pill" data-filter="ESCALATED" onclick="setCaseFilter('ESCALATED')">Escalated</button>
+          <button type="button" class="filter-pill" data-filter="CRITICAL" onclick="setCaseFilter('CRITICAL')">Critical Severity</button>
+          <button type="button" class="filter-pill" data-filter="WHISTLEBLOWER" onclick="setCaseFilter('WHISTLEBLOWER')">Whistleblower Protected</button>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table" id="caseTable">
+          <thead>
+            <tr>
+              <th>Ref No.</th>
+              <th>Complainant</th>
+              <th>Problem Overview</th>
+              <th>Category</th>
+              <th>Severity</th>
+              <th>Status</th>
+              <th>SLA</th>
+              <th style="text-align:center;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="caseTableBody">
+            <tr><td colspan="8" class="empty-state">Loading cases...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== SLA CHECK RESULT TOAST ===== -->
+  <div class="toast" id="toast" style="display:none">
+    <div class="toast-content" id="toastContent"></div>
+  </div>
+
+  <footer class="footer">
+    <p>© 2026 Vignan's Foundation for Science, Technology & Research (Deemed to be University). All rights reserved.</p>
+    <p style="font-size:12px; margin-top:4px; opacity:0.8;">Student Grievance Redressal Monitoring System · UGC Mandated Redressal Mechanism</p>
+  </footer>
+
+  <!-- ===== LOGOUT / SWITCH CONFIRMATION DIALOG MODAL ===== -->
+  <div class="modal-overlay" id="logoutConfirmModal" style="display:none;" onclick="if(event.target === this) closeLogoutModal()" role="dialog" aria-modal="true" aria-labelledby="logoutModalTitle">
+    <div class="modal-card">
+      <div class="modal-icon-badge modal-icon-warn">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </div>
+
+      <h3 class="modal-title" id="logoutModalTitle">Switch to Student Portal?</h3>
+      
+      <p class="modal-desc" id="logoutModalDesc">
+        You are currently signed in with an active <strong>Institutional Authority session</strong>. Switching to the public student portal will securely log you out of your administrative console.
+      </p>
+
+      <div class="modal-officer-strip" id="modalOfficerStrip">
+        <div class="modal-officer-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <div class="modal-officer-info">
+          <span class="modal-officer-title" id="modalOfficerTitle">Institutional Authority</span>
+          <span class="modal-officer-badge" id="modalOfficerBadge">ACTIVE SESSION</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="modal-btn modal-btn-cancel" onclick="closeLogoutModal()">
+          Stay in Admin Console
+        </button>
+        <button type="button" class="modal-btn modal-btn-danger" id="modalConfirmBtn" onclick="executeLogoutAndRedirect()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span id="modalConfirmText">Log Out & Proceed</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CASE DOSSIER / FULL DETAIL MODAL ===== -->
+  <div class="modal-overlay dossier-overlay" id="caseDetailModal" style="display:none;" onclick="if(event.target === this) closeCaseDossier()" role="dialog" aria-modal="true" aria-labelledby="dossierRefNo">
+    <div class="dossier-card">
+      <!-- Modal Header -->
+      <div class="dossier-header">
+        <div class="dossier-header-left">
+          <div class="dossier-ref-box">
+            <span class="dossier-ref-label">INCIDENT RECORD</span>
+            <h3 class="dossier-ref-no" id="dossierRefNo">GRV-2026-XXXXX</h3>
+          </div>
+          <div class="dossier-badge-row">
+            <span class="dossier-tag" id="dossierCategory">CATEGORY</span>
+            <span class="dossier-tag" id="dossierSeverity">SEVERITY</span>
+            <span class="dossier-tag" id="dossierStatus">STATUS</span>
+          </div>
+        </div>
+        <button type="button" class="dossier-close-btn" onclick="closeCaseDossier()" title="Close Dossier (Esc)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body (2-Column Executive Layout) -->
+      <div class="dossier-body">
+        <div class="dossier-col dossier-col-left">
+          <!-- 1. Complainant Identity Card -->
+          <div class="dossier-card-box" id="complainantCardBox">
+            <div class="dossier-card-head">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span>Complainant Identification</span>
+            </div>
+            <div id="complainantCardContent">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- 2. The Problem / Verbatim Complaint Narrative -->
+          <div class="dossier-card-box">
+            <div class="dossier-card-head">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              <span>Grievance Narrative (Problem Statement)</span>
+            </div>
+            <div class="dossier-problem-quote">
+              <p id="dossierProblemText" class="dossier-problem-text">--</p>
+            </div>
+            <div class="dossier-problem-meta">
+              <span><strong>Submitted:</strong> <span id="dossierSubmittedAt">--</span></span>
+              <span><strong>Channel:</strong> <span id="dossierChannel">WEB</span></span>
+            </div>
+          </div>
+
+          <!-- 3. AI Classifier Insights -->
+          <div class="dossier-card-box">
+            <div class="dossier-card-head">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+              <span>Agent 46 AI Classification Insight</span>
+            </div>
+            <div class="dossier-ai-metrics">
+              <div class="dossier-metric-item">
+                <div class="dossier-conf-header">
+                  <span class="dossier-metric-label">Classifier Confidence</span>
+                  <span class="dossier-conf-text" id="dossierConfText">--%</span>
+                </div>
+                <div class="dossier-conf-bar-wrap">
+                  <div class="dossier-conf-bar" id="dossierConfBar" style="width: 0%;"></div>
+                </div>
+              </div>
+              <div class="dossier-metric-item" style="margin-top: 12px;">
+                <span class="dossier-metric-label">Detected Trigger Keywords</span>
+                <div class="dossier-keywords-wrap" id="dossierKeywordsWrap">
+                  <!-- Pills rendered dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3b. Past Case Precedents & Similar Historical Rulings -->
+          <div class="dossier-card-box" id="dossierPrecedentsBox">
+            <div class="dossier-card-head" style="color: #0369a1;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+              <span>Past Case Precedents & Similar Rulings</span>
+            </div>
+            <div id="dossierPrecedentsContent" class="dossier-precedents-list">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <div class="dossier-col dossier-col-right">
+          <!-- 4. Institutional Routing & Jurisdiction -->
+          <div class="dossier-card-box">
+            <div class="dossier-card-head">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              <span>Jurisdiction & Routing</span>
+            </div>
+            <div class="dossier-key-values">
+              <div class="dossier-kv-row">
+                <span class="kv-label">Assigned Role</span>
+                <span class="kv-val" id="dossierAssignedRole">--</span>
+              </div>
+              <div class="dossier-kv-row">
+                <span class="kv-label">Target Committee</span>
+                <span class="kv-val" id="dossierCommittee">--</span>
+              </div>
+              <div class="dossier-kv-row">
+                <span class="kv-label">Escalation Tier</span>
+                <span class="kv-val" id="dossierEscalationLevel">Level 1</span>
+              </div>
+              <div class="dossier-kv-row">
+                <span class="kv-label">Statutory Route</span>
+                <span class="kv-val" id="dossierStatutory">Normal Routing</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. SLA Due Date & Velocity -->
+          <div class="dossier-card-box">
+            <div class="dossier-card-head">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span>SLA Target & Velocity</span>
+            </div>
+            <div class="dossier-sla-strip" id="dossierSLAStrip">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- 6. Resolution Panel (if resolved) -->
+          <div class="dossier-card-box" id="dossierResolutionBox" style="display:none;">
+            <div class="dossier-card-head">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              <span>Resolution Record & Satisfaction</span>
+            </div>
+            <div id="dossierResolutionContent">
+              <!-- Rendered dynamically -->
+            </div>
+            <button type="button" class="btn-resolution-letter" id="btnDossierResolutionLetter" onclick="openResolutionLetterModal(activeDossierCase?.grievance_no)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              <span>View Official University Resolution Letter</span>
+            </button>
+          </div>
+
+          <!-- 6b. Official Resolution Action Form (if pending resolution) -->
+          <div class="dossier-card-box dossier-action-card" id="dossierResolutionActionBox" style="display:none;">
+            <div class="dossier-card-head dossier-action-head">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+              <span>Record Official Redressal Resolution</span>
+            </div>
+            <div class="dossier-action-body">
+              <p class="dossier-action-desc">
+                Authorized Committee Action: Submitting formal resolution findings will mark this case as <strong>RESOLVED</strong>, notify the student, and open their satisfaction rating assessment.
+              </p>
+              <div class="form-group-dossier">
+                <label for="dossierResolutionInput" class="dossier-action-label">Official Resolution Notes & Remedial Actions Taken <span class="required">*</span></label>
+                <textarea id="dossierResolutionInput" class="dossier-resolution-textarea" rows="4" placeholder="Document inquiry findings, disciplinary measures enforced, institutional reparations, and official closure remarks (minimum 10 characters)..." oninput="updateDossierCharCount()"></textarea>
+                <div class="dossier-char-counter">
+                  <span id="dossierCharCount">0</span> / 10 characters minimum
+                </div>
+              </div>
+              <div id="dossierResolutionAlert" style="display:none;" class="dossier-alert-banner"></div>
+              <button type="button" class="btn-resolve-case" id="btnSubmitResolution" onclick="submitDossierResolution()" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Confirm & Record Resolution</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 7. Chronological Lifecycle Timeline -->
+          <div class="dossier-card-box">
+            <div class="dossier-card-head">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="12 8 12 12 14 14"></polyline><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path></svg>
+              <span>Lifecycle Audit Trail</span>
+            </div>
+            <div class="dossier-timeline" id="dossierTimeline">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="dossier-footer">
+        <button type="button" class="modal-btn modal-btn-cancel" onclick="copyDossierRefNo()" id="btnCopyRef">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <span id="copyRefText">Copy Ref No</span>
+        </button>
+        <button type="button" class="modal-btn modal-btn-primary" onclick="closeCaseDossier()">
+          Close Dossier
+        </button>
+      </div>
+    </div>
+  <!-- ===== OFFICIAL RESOLUTION LETTER MODAL ===== -->
+  <div class="modal-overlay dossier-overlay" id="resolutionLetterModal" style="display:none;" onclick="if(event.target === this) closeResolutionLetterModal()" role="dialog" aria-modal="true" aria-labelledby="resolutionLetterModalTitle">
+    <div class="letter-modal-card">
+      <div class="letter-modal-actions">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span id="resolutionLetterModalTitle" style="font-weight:700; font-size:13px; letter-spacing:0.3px;">Official University Redressal Order</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button type="button" class="btn-print-letter" onclick="window.print()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            <span>Print / Save as PDF</span>
+          </button>
+          <button type="button" class="dossier-close-btn" onclick="closeResolutionLetterModal()" title="Close Letter">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+      </div>
+      <div class="letter-scroll-wrap">
+        <div class="letter-paper" id="resolutionLetterPaper">
+          <p class="empty-state">Loading formal resolution letter...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

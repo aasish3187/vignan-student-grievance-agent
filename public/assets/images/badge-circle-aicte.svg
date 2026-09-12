@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <defs>
+    <linearGradient id="aicteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="50%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+    <linearGradient id="goldCog" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <filter id="shadowAicte" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Circular Base -->
+  <circle cx="40" cy="40" r="30" fill="#ffffff"/>
+  
+  <!-- Brush Stroke Frame Ring -->
+  <image href="brush-frame-transparent.png" x="0" y="0" width="80" height="80"/>
+
+  <!-- AICTE Cogwheel / Emblem in Center -->
+  <g transform="translate(40, 31)">
+    <!-- 12-tooth cogwheel -->
+    <circle cx="0" cy="0" r="14" fill="url(#goldCog)"/>
+    <g fill="#d97706">
+      <rect x="-2" y="-16" width="4" height="4" rx="1"/>
+      <rect x="-2" y="12" width="4" height="4" rx="1"/>
+      <rect x="-16" y="-2" width="4" height="4" rx="1"/>
+      <rect x="12" y="-2" width="4" height="4" rx="1"/>
+      <rect x="-12" y="-12" width="4" height="4" rx="1" transform="rotate(45)"/>
+      <rect x="8" y="8" width="4" height="4" rx="1" transform="rotate(45)"/>
+      <rect x="-12" y="8" width="4" height="4" rx="1" transform="rotate(45)"/>
+      <rect x="8" y="-12" width="4" height="4" rx="1" transform="rotate(45)"/>
+    </g>
+    <!-- Inner blue circle with emblem center -->
+    <circle cx="0" cy="0" r="8" fill="#1e3a8a"/>
+    <!-- Indian lamp flame -->
+    <path d="M0 -5 C2 -2, 3 1, 0 4 C-3 1, -2 -2, 0 -5 Z" fill="#fbbf24"/>
+  </g>
+
+  <!-- Text -->
+  <g text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <text x="40" y="55" font-size="9" font-weight="900" fill="#111827" letter-spacing="0.5">AICTE</text>
+    <text x="40" y="63" font-size="5" font-weight="800" fill="#dc2626" letter-spacing="0.4">APPROVED</text>
+    <text x="40" y="69" font-size="3.8" font-weight="600" fill="#6b7280">Govt. of India</text>
+  </g>
+</svg>

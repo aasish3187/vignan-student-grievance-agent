@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <defs>
+    <linearGradient id="qsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="50%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <filter id="shadowQs" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Circular Base -->
+  <circle cx="40" cy="40" r="38" fill="#ffffff" filter="url(#shadowQs)"/>
+  
+  <!-- Gradient Ring -->
+  <circle cx="40" cy="40" r="36.5" fill="none" stroke="url(#qsGrad)" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="215 15" stroke-dashoffset="180"/>
+
+  <!-- Content -->
+  <g text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <!-- QS Emblem Box -->
+    <rect x="29" y="19" width="22" height="15" rx="3" fill="#f59e0b"/>
+    <text x="40" y="30" font-size="10" font-weight="900" fill="#ffffff" letter-spacing="0.5">QS</text>
+    
+    <!-- I-GAUGE -->
+    <text x="40" y="44" font-size="7.5" font-weight="900" fill="#111827" letter-spacing="0.3">I-GAUGE</text>
+    
+    <!-- Diamond Symbol -->
+    <polygon points="40,49 44,53 40,57 36,53" fill="#0284c7"/>
+
+    <!-- Diamond Rating -->
+    <text x="40" y="64" font-size="5" font-weight="900" fill="#0284c7" letter-spacing="0.5">DIAMOND</text>
+  </g>
+</svg>

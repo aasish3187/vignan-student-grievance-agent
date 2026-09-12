@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Authority Login — Vignan University Student Grievance Redressal System">
+  <title>Authority Login — Vignan University</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="login.css">
+</head>
+<body class="login-body">
+  <!-- ===== TOP UNIVERSITY BRANDING & RANKING BADGES PANEL ===== -->
+  <div class="univ-topbar">
+    <div class="univ-topbar-inner">
+      <a href="https://vignan.ac.in" target="_blank" rel="noopener" class="univ-logo-wrap" title="Vignan's Foundation for Science, Technology & Research">
+        <img src="assets/images/vignan-logo.svg" alt="Vignan's Foundation for Science, Technology & Research (Deemed to be University)" class="univ-main-logo">
+      </a>
+      <div class="univ-center-title">
+        <h2 class="univ-agent-title">STUDENT GRIEVANCE REDRESSAL PORTAL</h2>
+        <p class="univ-agent-sub">Central Grievance Redressal Cell · Vignan University</p>
+      </div>
+      <div class="univ-badges-strip" title="Accreditations & National Rankings">
+        <div class="badge-item" title="DSIR Certified Institute (Dept. of Science & Industrial Research)">
+          <img src="assets/images/badge-brush-dsir.png" alt="DSIR Certified">
+        </div>
+        <div class="badge-item" title="NAAC A+ Accredited (3.49 CGPA)">
+          <img src="assets/images/badge-brush-naac.png" alt="NAAC A+">
+        </div>
+        <div class="badge-item" title="NIRF Ranked 70 (Universities)">
+          <img src="assets/images/badge-brush-nirf.png" alt="NIRF 70">
+        </div>
+        <div class="badge-item" title="NBA Accredited Programs (CSE, ECE, EEE, Mech, Biotech)">
+          <img src="assets/images/badge-brush-nba.png" alt="NBA">
+        </div>
+        <div class="badge-item" title="AICTE Approved">
+          <img src="assets/images/badge-brush-aicte.png" alt="AICTE">
+        </div>
+        <div class="badge-item" title="UGC Category-I Deemed to be University">
+          <img src="assets/images/badge-brush-ugc.png" alt="UGC Category-I">
+        </div>
+        <div class="badge-item" title="Bar Council of India / Legal Education Approved">
+          <img src="assets/images/badge-brush-bci.png" alt="Bar Council of India">
+        </div>
+        <div class="badge-item" title="ABET Accredited (CSE, ECE, MECH)">
+          <img src="assets/images/badge-brush-abet.png" alt="ABET">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PORTAL NAVIGATION HEADER ===== -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="/" class="header-brand" title="Vignan University Student Grievance Redressal Portal">
+        <div class="portal-badge-icon" title="Official Seal — Vignan's Foundation for Science, Technology & Research">
+          <svg viewBox="9 8 128 145" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M85.8016 63.8012C87.4016 66.2012 88.3016 68.9012 88.4016 71.8012L120.802 82.3012C120.102 85.7012 119.002 89.1012 117.502 92.4012L85.1016 81.9012C83.3016 84.2012 81.0016 85.9012 78.3016 86.9012V120.801C74.8016 121.201 71.2016 121.201 67.7016 120.801V86.8012C65.0016 85.8012 62.7016 84.1012 60.9016 81.8012L28.4016 92.4012C26.9016 89.2012 25.8016 85.8012 25.1016 82.3012L57.5016 71.8012C57.6016 68.9012 58.5016 66.2012 60.1016 63.8012L40.1016 36.4012C42.7016 34.0012 45.6016 31.9012 48.7016 30.2012L68.7016 57.6012C71.4016 56.8012 74.4016 56.8012 77.1016 57.6012L97.1016 30.2012C100.202 31.9012 103.102 34.0012 105.702 36.4012L85.8016 63.8012ZM66.9016 81.4012C68.7016 82.6012 70.8016 83.2012 73.0016 83.2012C75.9016 83.2012 78.7016 82.0012 80.7016 80.0012C82.7016 78.0012 83.9016 75.2012 83.9016 72.3012C83.9016 70.1012 83.2016 68.1012 82.1016 66.3012C80.9016 64.5012 79.2016 63.1012 77.2016 62.3012C75.2016 61.5012 73.0016 61.3012 70.9016 61.7012C68.8016 62.1012 66.8016 63.2012 65.3016 64.7012C63.8016 66.2012 62.7016 68.1012 62.3016 70.3012C61.9016 72.4012 62.1016 74.6012 62.9016 76.6012C63.6016 78.6012 65.1016 80.3012 66.9016 81.4012ZM76.9016 73.7012L79.3016 81.2012L73.0016 76.5012L66.6016 81.1012L69.0016 73.6012L62.7016 69.0012H70.6016L73.0016 61.5012L75.4016 69.0012H83.3016L76.9016 73.7012Z" fill="#ffffff"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M73.0008 50.2012L90.7008 27.0012C79.3008 22.6012 66.7008 22.6012 55.3008 27.0012L73.0008 50.2012Z" fill="#93c5fd"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M51.8016 65.5016L24.2016 75.1016C24.2016 74.2016 24.1016 73.3016 24.1016 72.4016C24.1016 61.2016 28.0016 50.3016 35.1016 41.6016L51.8016 65.5016Z" fill="#93c5fd"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M31.9023 98.7008C38.5023 108.901 48.7023 116.301 60.5023 119.401C60.4023 112.601 60.0023 97.0008 59.9023 90.3008L31.9023 98.7008Z" fill="#93c5fd"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M114.002 98.7012C107.402 108.901 97.2023 116.301 85.4023 119.401C85.4023 116.401 85.5023 111.701 85.7023 106.701C85.8023 100.501 86.0023 94.0012 86.0023 90.2012L114.002 98.7012Z" fill="#93c5fd"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M121.699 75.1016C121.699 74.2016 121.799 73.3016 121.799 72.4016C121.799 61.2016 117.899 50.3016 110.799 41.6016L94.1992 65.5016L121.699 75.1016Z" fill="#93c5fd"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M133.501 8.30078H13.1008H9.30078V12.1008V71.8008C9.30078 84.5008 12.4008 96.9008 18.3008 107.901C24.2008 118.901 32.7008 128.201 43.0008 134.701L68.6008 150.901C70.0008 151.801 71.6008 152.301 73.2008 152.301C74.9008 152.301 76.5008 151.801 77.8008 150.901L103.401 134.701C113.701 128.201 122.201 118.901 128.101 107.901C134.001 96.9008 137.101 84.4008 137.101 71.8008V12.1008V8.30078H133.501ZM130.001 71.5008C130.001 82.9008 127.201 94.2008 121.901 104.101C116.601 114.001 109.001 122.301 99.8008 128.101L74.2008 144.301C74.0008 144.401 73.8008 144.501 73.6008 144.501C73.4008 144.501 73.2008 144.501 73.0008 144.301L47.2008 128.001C38.1008 122.201 30.4008 113.901 25.2008 104.001C19.9008 94.1008 17.1008 82.8008 17.1008 71.4008V15.6008H129.901L130.001 71.5008Z" fill="#93c5fd"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">AUTHORITY AUTHENTICATION GATEWAY</h1>
+          <p class="brand-sub">Central Grievance Redressal Cell · Executive Oversight Console</p>
+        </div>
+      </a>
+      <div class="header-right">
+        <a href="/" class="nav-key nav-key-portal" title="Return to Public Student Grievance Portal">
+          <svg class="nav-key-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          <span>Student Portal</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== MAIN AUTHENTICATION CONTAINER ===== -->
+  <main class="login-wrapper">
+    <div class="login-card">
+      <!-- Card Header -->
+      <div class="login-card-header">
+        <div class="login-logo-badge" id="portalBadgeIcon">
+          <img src="assets/images/vignan-logo.svg" alt="Vignan's Foundation for Science, Technology & Research (Deemed to be University)" class="login-card-logo">
+        </div>
+        <h2 id="loginCardTitle">Officer & Authority Sign-In</h2>
+        <p class="login-card-sub" id="loginCardSub">Institutional administrative console access for Deans, Department Heads, and Statutory Redressal Committee Chairs.</p>
+      </div>
+
+      <!-- Alert / Feedback Banner -->
+      <div id="loginAlert" class="login-alert" style="display:none;" role="alert">
+        <div class="alert-icon" id="alertIcon"></div>
+        <div class="alert-content" id="alertMessage"></div>
+      </div>
+
+      <!-- Credentials Form (Manual Entry Only) -->
+      <form id="loginForm" class="login-form">
+        <div class="form-group">
+          <label for="username" id="usernameLabel">Institutional Officer ID / Username</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </span>
+            <input type="text" id="username" name="username" placeholder="e.g. chair.antiragging, hod.cse, chair.icc" required autocomplete="username">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </span>
+            <input type="password" id="password" name="password" placeholder="Enter institutional password (e.g. vignan@2026)" required autocomplete="current-password">
+            <button type="button" class="btn-toggle-pw" id="togglePw" title="Show/hide password" aria-label="Toggle password visibility">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary btn-login" id="loginBtn">
+          <span class="btn-text" id="loginBtnText">Authenticate Administrative Clearance</span>
+          <span class="btn-loading" style="display:none;">Authenticating...</span>
+        </button>
+      </form>
+
+
+      <!-- Collapsible Directory Reference for Evaluation -->
+      <div class="credentials-guide">
+        <button type="button" class="credentials-guide-toggle" id="toggleGuide" aria-expanded="false">
+          <div class="guide-toggle-left">
+            <svg class="guide-key-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>Authorized Authority Directory (For Evaluation Reference)</span>
+          </div>
+          <svg class="guide-chevron" id="guideChevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <div class="credentials-guide-body" id="guideBody" style="display:none;">
+          <div style="margin-top:8px; margin-bottom:4px; font-weight:700; color:var(--primary); font-size:12px;">
+            AUTHORITY & OFFICER ACCOUNTS (Administrative Console):
+          </div>
+          <table class="guide-table" style="margin-top:4px;">
+            <thead>
+              <tr>
+                <th>Institutional Authority</th>
+                <th>Username</th>
+                <th>Jurisdiction</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Departments HOD (CSE)</strong></td>
+                <td><code>hod.cse</code></td>
+                <td>All complaints given by their department</td>
+              </tr>
+              <tr>
+                <td><strong>Grievance Committee</strong></td>
+                <td><code>dean.studentaffairs</code></td>
+                <td>Campus-wide (All complaints filed)</td>
+              </tr>
+              <tr>
+                <td><strong>Anti-Ragging & Student Comm.</strong></td>
+                <td><code>chair.antiragging</code></td>
+                <td>Statutory cases only (Ragging, Bullying, Harassment, Safety)</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="guide-pw-note">Institutional Demo Password: <code>vignan@2026</code></p>
+        </div>
+      </div>
+
+      <!-- Security Notice Footer -->
+      <div class="login-card-footer">
+        <p class="student-notice" id="loginCardFooterNote">
+          <strong>Security Protocol:</strong> Student accounts access the Student Grievance Portal. Administrative and committee officers access the executive analytics console.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p>© 2026 Vignan's Foundation for Science, Technology & Research (Deemed to be University). All rights reserved.</p>
+    <p style="font-size:12px; margin-top:4px; opacity:0.8;">Student Grievance Redressal Monitoring System · UGC Mandated Redressal Mechanism</p>
+  </footer>
+
+  <script src="login.js"></script>
+</body>
+</html>
