@@ -1459,11 +1459,22 @@ async function submitDossierResolution() {
     return;
   }
 
+  const domRef = document.getElementById('dossierRefNo')?.textContent?.trim();
+  const caseIdentifier = activeDossierCase?.grievance_no || activeDossierCase?.grievance_id || domRef;
+
+  if (!caseIdentifier || caseIdentifier === '—') {
+    if (alertEl) {
+      alertEl.className = 'dossier-alert-banner alert-error';
+      alertEl.textContent = 'Active grievance reference is missing. Please close and re-open this case from the register.';
+      alertEl.style.display = 'block';
+    }
+    return;
+  }
+
   btn.disabled = true;
   btn.innerHTML = `<svg class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path></svg><span>Recording Resolution...</span>`;
 
   try {
-    const caseIdentifier = activeDossierCase.grievance_no || activeDossierCase.grievance_id;
     const res = await fetch(`${API_BASE}/grievances/${encodeURIComponent(caseIdentifier)}/resolve`, {
       method: 'PUT',
       headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
@@ -1487,7 +1498,11 @@ async function submitDossierResolution() {
     showToast(`Case ${caseIdentifier} has been officially RESOLVED.`);
 
     // Re-open dossier to display the resolution view & updated audit trail
-    await openCaseDossier(caseIdentifier);
+    try {
+      await openCaseDossier(caseIdentifier);
+    } catch (e) {
+      console.warn('Post-resolution dossier refresh note:', e);
+    }
 
     // Refresh KPI counts and tables
     fetchKPIs();

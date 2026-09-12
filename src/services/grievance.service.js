@@ -252,10 +252,36 @@ function getStudentGrievances(regdNo, phone) {
 }
 
 /**
+ * Normalizes and finds a grievance by ID, reference number, or case-insensitive representation.
+ */
+function findGrievanceRecord(db, idOrNo) {
+  if (!idOrNo) return null;
+  const raw = String(idOrNo).trim();
+  let decoded = raw;
+  try { decoded = decodeURIComponent(raw).trim(); } catch (e) {}
+  const upper = decoded.toUpperCase();
+
+  return db.prepare(`
+    SELECT * FROM grievances 
+    WHERE grievance_id = ? 
+       OR UPPER(TRIM(grievance_no)) = ? 
+       OR UPPER(TRIM(grievance_id)) = ?
+       OR grievance_no = ?
+       OR grievance_id = ?
+  `).get(decoded, upper, upper, raw, raw);
+}
+
+/**
  * Get a single grievance with its full event timeline, enriched student profile, department, and committee details.
  */
 function getGrievance(idOrNo) {
   const db = getDb();
+  if (!idOrNo) return null;
+  const raw = String(idOrNo).trim();
+  let decoded = raw;
+  try { decoded = decodeURIComponent(raw).trim(); } catch (e) {}
+  const upper = decoded.toUpperCase();
+
   const grievance = db.prepare(`
     SELECT g.*,
            COALESCE(u.full_name, g.complainant_name) as student_name,
@@ -271,8 +297,12 @@ function getGrievance(idOrNo) {
     LEFT JOIN users u ON g.student_id = u.user_id
     LEFT JOIN departments d ON g.department_id = d.department_id
     LEFT JOIN committees c ON g.committee_id = c.committee_id
-    WHERE g.grievance_id = ? OR g.grievance_no = ?
-  `).get(idOrNo, idOrNo);
+    WHERE g.grievance_id = ? 
+       OR UPPER(TRIM(g.grievance_no)) = ? 
+       OR UPPER(TRIM(g.grievance_id)) = ? 
+       OR g.grievance_no = ?
+       OR g.grievance_id = ?
+  `).get(decoded, upper, upper, raw, raw);
   if (!grievance) return null;
 
   const events = db.prepare(`
@@ -310,15 +340,19 @@ function listGrievances(filters = {}, user = null) {
   `;
   const params = [];
 
-  // Apply authority scope
-  if (user) {
-    const scope = buildScopeClause(user, 'g');
-    if (scope.clause) {
-      query += scope.clause;
-      params.push(...scope.params);
-    }
+  // Scoping: Department HODs only see their department
+  if (user && user.role === 'HOD' && user.department_id) {
+    query += ' AND g.department_id = ?';
+    params.push(user.department_id);
   }
 
+  // Scoping: Committee members only see their committee grievances
+  if (user && user.committee_id) {
+    query += ' AND g.committee_id = ?';
+    params.push(user.committee_id);
+  }
+
+  // General Filters
   if (filters.status) {
     query += ' AND g.status = ?';
     params.push(filters.status);
@@ -327,26 +361,28 @@ function listGrievances(filters = {}, user = null) {
     query += ' AND g.category = ?';
     params.push(filters.category);
   }
-  if (filters.student_id) {
-    query += ' AND g.student_id = ?';
-    params.push(filters.student_id);
+  if (filters.severity) {
+    query += ' AND g.severity = ?';
+    params.push(filters.severity);
   }
   if (filters.department_id) {
     query += ' AND g.department_id = ?';
     params.push(filters.department_id);
   }
-  if (filters.is_statutory_route !== undefined) {
+  if (filters.committee_id) {
+    query += ' AND g.committee_id = ?';
+    params.push(filters.committee_id);
+  }
+  if (filters.assigned_to_role) {
+    query += ' AND g.assigned_to_role = ?';
+    params.push(filters.assigned_to_role);
+  }
+  if (filters.is_statutory !== undefined) {
     query += ' AND g.is_statutory_route = ?';
-    params.push(filters.is_statutory_route ? 1 : 0);
+    params.push(filters.is_statutory ? 1 : 0);
   }
 
   query += ' ORDER BY g.submitted_at DESC';
-
-  if (filters.limit) {
-    query += ' LIMIT ?';
-    params.push(filters.limit);
-  }
-
   return db.prepare(query).all(...params);
 }
 
@@ -355,8 +391,8 @@ function listGrievances(filters = {}, user = null) {
  */
 function resolveGrievance(idOrNo, resolution, actorUserId) {
   const db = getDb();
-  const grievance = db.prepare('SELECT * FROM grievances WHERE grievance_id = ? OR grievance_no = ?').get(idOrNo, idOrNo);
-  if (!grievance) throw new Error('Grievance not found');
+  const grievance = findGrievanceRecord(db, idOrNo);
+  if (!grievance) throw new Error(`Grievance "${idOrNo}" not found`);
 
   const resolvedAt = new Date().toISOString();
   db.prepare(`
@@ -398,8 +434,8 @@ function resolveGrievance(idOrNo, resolution, actorUserId) {
  */
 function appealGrievance(idOrNo, reason, actorUserId) {
   const db = getDb();
-  const grievance = db.prepare('SELECT * FROM grievances WHERE grievance_id = ? OR grievance_no = ?').get(idOrNo, idOrNo);
-  if (!grievance) throw new Error('Grievance not found');
+  const grievance = findGrievanceRecord(db, idOrNo);
+  if (!grievance) throw new Error(`Grievance "${idOrNo}" not found`);
 
   db.prepare(`
     UPDATE grievances SET status = 'APPEALED', appeal_reason = ?, updated_at = ?
@@ -429,8 +465,8 @@ function rateSatisfaction(idOrNo, ratingOrPayload, commentArg, actorUserIdArg) {
   rating = Number(rating);
 
   const db = getDb();
-  const grievance = db.prepare('SELECT * FROM grievances WHERE grievance_id = ? OR grievance_no = ?').get(idOrNo, idOrNo);
-  if (!grievance) throw new Error('Grievance not found');
+  const grievance = findGrievanceRecord(db, idOrNo);
+  if (!grievance) throw new Error(`Grievance "${idOrNo}" not found`);
 
   db.prepare(`
     UPDATE grievances SET satisfaction_rating = ?, satisfaction_comment = ?,

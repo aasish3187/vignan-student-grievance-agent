@@ -130,11 +130,13 @@ router.put('/:id/resolve',
   requireHumanDecision,
   (req, res) => {
     try {
+      const targetId = decodeURIComponent(req.params.id || '').trim();
       const result = grievanceService.resolveGrievance(
-        req.params.id, req.body.resolution, req.body.actor_user_id
+        targetId, req.body.resolution, req.body.actor_user_id
       );
       res.json({ success: true, data: result });
     } catch (err) {
+      console.error(`[RESOLVE ERROR] ID "${req.params.id}":`, err.message);
       res.status(500).json({ error: 'RESOLVE_FAILED', message: err.message });
     }
   }
