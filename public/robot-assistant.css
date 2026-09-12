@@ -571,22 +571,35 @@
 }
 
 /* Mobile responsive */
-@media (max-width: 480px) {
+/* Mobile responsive */
+@media (max-width: 600px) {
   .robot-agent-container {
-    bottom: 16px;
-    right: 16px;
+    bottom: 14px;
+    right: 14px;
+    z-index: 1050;
+  }
+  .robot-speech-bubble {
+    display: none !important; /* Hide intrusive greeting bubble on mobile to keep forms clear */
   }
   .robot-dialog {
-    bottom: 96px;
+    bottom: 85px;
     right: 12px;
     left: 12px;
     width: auto;
     max-width: none;
-    height: 480px;
+    height: calc(100vh - 110px);
+    max-height: 520px;
+    border-radius: 14px;
   }
   .robot-trigger-wrapper,
   .robot-avatar-img {
-    width: 76px;
-    height: 76px;
+    width: 64px;
+    height: 64px;
+  }
+  .robot-shadow-ellipse {
+    width: 40px;
+    left: 12px;
+    bottom: -2px;
   }
 }
+

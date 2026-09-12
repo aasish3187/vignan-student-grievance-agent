@@ -2108,3 +2108,162 @@ body {
     max-width: 100%;
   }
 }
+
+/* ===== MOBILE RESPONSIVE STYLES FOR ADMIN DASHBOARD ===== */
+@media (max-width: 768px) {
+  /* Topbar & Header */
+  .univ-topbar {
+    padding: 8px 12px;
+  }
+  .univ-topbar-inner {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+  }
+  .univ-main-logo {
+    height: 34px;
+  }
+  .univ-agent-title {
+    font-size: 13px;
+    white-space: normal;
+    text-align: center;
+  }
+  .univ-agent-sub {
+    font-size: 10px;
+    text-align: center;
+  }
+  .univ-badges-strip {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 4px 2px 6px;
+    scrollbar-width: none;
+  }
+  .univ-badges-strip::-webkit-scrollbar {
+    display: none;
+  }
+  .badge-item {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  .header-inner {
+    padding: 8px 12px;
+    min-height: 48px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .header-brand {
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+  }
+  .portal-badge-icon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+  .portal-badge-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  .brand-title {
+    font-size: 12px;
+    line-height: 1.2;
+    white-space: normal;
+  }
+  .brand-sub {
+    display: none;
+  }
+  .header-right {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .nav-key {
+    height: 30px;
+    padding: 0 8px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  /* Admin Content */
+  .admin-main,
+  .dashboard-container {
+    padding: 14px 12px 60px;
+    max-width: 100%;
+  }
+  .authority-session-badge {
+    padding: 12px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .authority-info-group {
+    flex-wrap: wrap;
+  }
+  .stats-grid,
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .metric-card,
+  .stat-card {
+    padding: 12px !important;
+    min-width: 0 !important;
+  }
+
+  /* Filters Toolbar */
+  .controls-bar,
+  .filter-bar,
+  .admin-filter-bar {
+    flex-direction: column !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+  }
+  .search-input-wrap,
+  .search-wrap {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .filter-group {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* Cases Table Horizontal Pan */
+  .table-container,
+  .table-wrap,
+  .cases-table-wrap {
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-radius: 10px !important;
+  }
+  table.cases-table,
+  table.admin-table {
+    min-width: 650px !important;
+  }
+
+  /* Modals */
+  .modal-dialog,
+  .dossier-modal,
+  .case-modal-dialog {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    margin: 8px auto !important;
+    max-height: 94vh !important;
+    border-radius: 12px !important;
+  }
+}
+

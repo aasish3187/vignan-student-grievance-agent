@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Agent 46 System Architecture Workflow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #ffffff;
+      color: #0f172a;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .poster {
+      width: 1400px;
+      background: #ffffff;
+      overflow: hidden;
+    }
+    .poster-header {
+      background: linear-gradient(135deg, #163675 0%, #0d2149 100%);
+      padding: 32px 48px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 4px solid #c5221f;
+    }
+    .poster-header-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .poster-header h1 {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      color: #ffffff;
+    }
+    .poster-header p {
+      font-size: 14px;
+      color: #93c5fd;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+    .meta-tag {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.05em;
+    }
+
+    .poster-body {
+      padding: 36px 44px;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* GRID LAYOUT FOR WORKFLOW STAGES */
+    .workflow-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .stage-card {
+      background: #ffffff;
+      border-radius: 14px;
+      border: 1.5px solid #e2e8f0;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .stage-card:hover {
+      border-color: #1a3c7d;
+      box-shadow: 0 8px 24px rgba(26,60,125,0.08);
+    }
+
+    .stage-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 12px;
+      border-radius: 6px;
+      width: fit-content;
+      margin-bottom: 12px;
+    }
+    .badge-blue { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .badge-amber { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .badge-red { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .badge-green { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .badge-purple { background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+    .badge-indigo { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
+
+    .stage-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 14px;
+      letter-spacing: -0.01em;
+    }
+
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .feature-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #334155;
+    }
+    .feature-item strong {
+      color: #0f172a;
+      display: block;
+      margin-bottom: 2px;
+      font-size: 13px;
+    }
+
+    /* CONNECTOR STRIP */
+    .connector-strip {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .step-node {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a3c7d;
+    }
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #1a3c7d;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+    }
+    .step-arrow {
+      color: #94a3b8;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    /* MULTI-AGENT MESH FOOTER BAR */
+    .mesh-bar {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 20px 28px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .mesh-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-bottom: 4px;
+    }
+    .mesh-sub {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .agent-badges {
+      display: flex;
+      gap: 10px;
+    }
+    .agent-tag {
+      background: #1e293b;
+      border: 1px solid #334155;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+    .agent-tag span {
+      color: #38bdf8;
+      margin-right: 4px;
+    }
+
+    /* FOOTER */
+    .poster-footer {
+      background: #ffffff;
+      padding: 16px 44px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="poster">
+    <!-- HEADER -->
+    <div class="poster-header">
+      <div class="poster-header-left">
+        <div>
+          <h1>Agent 46: Student Grievance Redressal Architecture</h1>
+          <p>Autonomous Policy-Driven Governance, SLA Escalations, Precedent Retrieval & Multi-Agent Mesh</p>
+        </div>
+      </div>
+      <div class="meta-tag">VFSTR · AGENTIC AI 2026</div>
+    </div>
+
+    <!-- PIPELINE PROGRESSION STRIP -->
+    <div style="background: #ffffff; padding: 14px 44px; border-bottom: 1px solid #e2e8f0;">
+      <div class="connector-strip">
+        <div class="step-node"><div class="step-circle">1</div> Intake</div>
+        <div class="step-arrow">&rarr;</div>
+        <div class="step-node"><div class="step-circle">2</div> AI Routing</div>
+        <div class="step-arrow">&rarr;</div>
+        <div class="step-node"><div class="step-circle">3</div> Database & SLA</div>
+        <div class="step-arrow">&rarr;</div>
+        <div class="step-node"><div class="step-circle">4</div> Precedents & Dossier</div>
+        <div class="step-arrow">&rarr;</div>
+        <div class="step-node"><div class="step-circle">5</div> Resolution Order</div>
+        <div class="step-arrow">&rarr;</div>
+        <div class="step-node"><div class="step-circle">6</div> Feedback & Mesh</div>
+      </div>
+    </div>
+
+    <!-- MAIN BODY -->
+    <div class="poster-body">
+      <div class="workflow-grid">
+        
+        <!-- CARD 1: DUAL-TRACK INTAKE -->
+        <div class="stage-card">
+          <div class="stage-badge badge-blue">Stage 1 · Intake Layer</div>
+          <div class="stage-title">Dual-Track Intake & Privacy</div>
+          <div class="feature-list">
+            <div class="feature-item">
+              <strong>Verified Student Track</strong>
+              Identified intake with Name, Regd No, Department & SMS tracking.
+            </div>
+            <div class="feature-item">
+              <strong>Whistleblower / Anonymous Mode</strong>
+              Complete PII redaction; generates cryptographic 6-digit secret PIN for confidential cases.
+            </div>
+            <div class="feature-item">
+              <strong>Interactive Robot AI Assistant</strong>
+              Floating 3D-styled guide answering policy, category & SLA inquiries.
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 2: AI CLASSIFIER & ROUTING -->
+        <div class="stage-card">
+          <div class="stage-badge badge-amber">Stage 2 · Policy & Routing</div>
+          <div class="stage-title">Intelligent AI Classification</div>
+          <div class="feature-list">
+            <div class="feature-item">
+              <strong>Guardrails & Sanitization</strong>
+              Automated PII scrubbing, injection mitigation & statutory keyword detection.
+            </div>
+            <div class="feature-item">
+              <strong>Multi-Tier Statutory Routing</strong>
+              Direct dispatch to HoD (Academic), Dean (General), Anti-Ragging, or ICC (Harassment).
+            </div>
+            <div class="feature-item">
+              <strong>Severity & Priority Scoring</strong>
+              Assigns CRITICAL (24-48h), HIGH (72h), MEDIUM (5d), or LOW (7-10d) deadlines.
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 3: DATABASE & REAL-TIME SLA -->
+        <div class="stage-card">
+          <div class="stage-badge badge-red">Stage 3 · SLA Engine</div>
+          <div class="stage-title">Database & Auto-Escalation</div>
+          <div class="feature-list">
+            <div class="feature-item">
+              <strong>Embedded SQLite Database</strong>
+              Relational persistent schema: grievances, audit logs, user credentials & precedents.
+            </div>
+            <div class="feature-item">
+              <strong>Continuous Cron Scanner</strong>
+              Node-cron engine audits upcoming and breached SLA deadlines every 60 seconds.
+            </div>
+            <div class="feature-item">
+              <strong>Automated Tier Escalation</strong>
+              On SLA breach: elevates ticket priority, logs audit event, and alerts higher authority.
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 4: AUTHORITY CASE DOSSIER -->
+        <div class="stage-card">
+          <div class="stage-badge badge-purple">Stage 4 · Authority Console</div>
+          <div class="stage-title">Case Dossier & Precedent Engine</div>
+          <div class="feature-list">
+            <div class="feature-item">
+              <strong>Jurisdiction-Scoped Consoles</strong>
+              Role-restricted dashboards for HoD CSE, Dean Student Affairs & Committee Chairs.
+            </div>
+            <div class="feature-item">
+              <strong>AI Precedents Matcher</strong>
+              Scans historical rulings repository using term frequency to suggest consistent benchmarks.
+            </div>
+            <div class="feature-item">
+              <strong>Investigation & Hearing Records</strong>
+              Records evidence submissions, committee findings, and corrective action plans.
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 5: FORMAL RESOLUTION ORDER -->
+        <div class="stage-card">
+          <div class="stage-badge badge-green">Stage 5 · Redressal Order</div>
+          <div class="stage-title">Statutory Resolution Order</div>
+          <div class="feature-list">
+            <div class="feature-item">
+              <strong>Official University Dispatch Order</strong>
+              Letterhead order with dispatch ref (VFSTR/GRC/2026/ORD-...), findings & authority seal.
+            </div>
+            <div class="feature-item">
+              <strong>15-Day Appellate Protocol</strong>
+              Includes UGC-mandated right to appeal to university Ombudsperson within 15 days.
+            </div>
+            <div class="feature-item">
+              <strong>Print & PDF Ready Layout</strong>
+              Accessible to students and authorities via verified web view or formal PDF export.
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 6: STUDENT CLOSURE & AUDIT -->
+        <div class="stage-card">
+          <div class="stage-badge badge-indigo">Stage 6 · Feedback & Audit</div>
+          <div class="stage-title">Student Satisfaction & Audit</div>
+          <div class="feature-list">
+            <div class="feature-item">
+              <strong>Dual-Track Status Lookup</strong>
+              Case lookup via Registration Number or Whistleblower 6-digit Secret PIN.
+            </div>
+            <div class="feature-item">
+              <strong>Student 1–5 Star Rating</strong>
+              Direct feedback collection on resolution timeliness, fairness & officer conduct.
+            </div>
+            <div class="feature-item">
+              <strong>Tamper-Proof Audit Trail</strong>
+              Complete chronological timestamp record from initial submission to final closure.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- MULTI-AGENT MESH INTEGRATION BAR -->
+      <div class="mesh-bar">
+        <div>
+          <div class="mesh-title">UNIVERSITY MULTI-AGENT MESH INTERFACE (BIDIRECTIONAL REST APIS)</div>
+          <div class="mesh-sub">Real-time inter-agent communication powering Vignan's Autonomous Campus Ecosystem</div>
+        </div>
+        <div class="agent-badges">
+          <div class="agent-tag"><span>A44</span> Student 360</div>
+          <div class="agent-tag"><span>A56</span> Committee Agendas</div>
+          <div class="agent-tag"><span>A57</span> IQAC Quality Audits</div>
+          <div class="agent-tag"><span>A64</span> Dropbox OCR Ingest</div>
+          <div class="agent-tag"><span>A70</span> Academic Decision</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="poster-footer">
+      <div>Vignan's Foundation for Science, Technology & Research (Deemed to be University) · Guntur, Andhra Pradesh</div>
+      <div>Agent 46: Student Grievance Redressal Agent · UGC Redressal Mechanism Compliant</div>
+    </div>
+  </div>
+
+</body>
+</html>
