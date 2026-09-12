@@ -40,10 +40,68 @@ function persistDispatch(record) {
 }
 
 /**
+ * Helper to dispatch real WhatsApp message via Twilio API if credentials exist
+ */
+function dispatchTwilioWhatsApp(toPhone, bodyText) {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const fromWhatsApp = process.env.TWILIO_WHATSAPP_NUMBER || '+14155238886'; // Twilio default sandbox
+
+  if (!accountSid || !authToken) return;
+
+  try {
+    const https = require('https');
+    const querystring = require('querystring');
+
+    const cleanTo = toPhone.startsWith('+') ? toPhone : `+91${toPhone.replace(/\D/g, '').slice(-10)}`;
+    const postData = querystring.stringify({
+      To: `whatsapp:${cleanTo}`,
+      From: fromWhatsApp.startsWith('whatsapp:') ? fromWhatsApp : `whatsapp:${fromWhatsApp}`,
+      Body: bodyText
+    });
+
+    const options = {
+      hostname: 'api.twilio.com',
+      port: 443,
+      path: `/2010-04-01/Accounts/${accountSid}/Messages.json`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(postData),
+        'Authorization': 'Basic ' + Buffer.from(`${accountSid}:${authToken}`).toString('base64')
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let respBody = '';
+      res.on('data', chunk => respBody += chunk);
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          console.log(`[TWILIO LIVE DISPATCH SUCCESS] WhatsApp sent to ${cleanTo}`);
+        } else {
+          console.warn(`[TWILIO LIVE DISPATCH WARN] Status ${res.statusCode}: ${respBody}`);
+        }
+      });
+    });
+
+    req.on('error', (err) => {
+      console.warn('[TWILIO LIVE DISPATCH ERROR]', err.message);
+    });
+
+    req.write(postData);
+    req.end();
+  } catch (e) {
+    console.warn('[TWILIO DISPATCH EXCEPTION]', e.message);
+  }
+}
+
+/**
  * Sends an intake acknowledgement via WhatsApp / SMS.
  */
 function sendIntakeNotice(data) {
   const dispatchId = uuidv4();
+  const rawDigits = (data.studentPhone || '').replace(/\D/g, '');
+  const cleanPhone = rawDigits.length === 10 ? `91${rawDigits}` : rawDigits;
   const phone = data.studentPhone || '+91-9876543210';
   const name = data.studentName || 'Student';
   const url = data.trackingUrl || `https://vignan-student-grievance-agent.onrender.com/?ref=${data.grievanceNo}`;
@@ -56,6 +114,12 @@ function sendIntakeNotice(data) {
     `• Live Case Tracker: ${url}\n\n` +
     `_This is an automated institutional update. Reply HELP for assistance._`;
 
+  // Generate direct wa.me link for immediate one-click handset delivery
+  const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+
+  // Attempt automated carrier API dispatch if configured
+  dispatchTwilioWhatsApp(cleanPhone, message);
+
   const record = {
     dispatchId,
     grievanceNo: data.grievanceNo,
@@ -65,7 +129,8 @@ function sendIntakeNotice(data) {
     message,
     status: 'DELIVERED',
     carrierAck: `MSG91-ACK-${Math.floor(100000 + Math.random() * 900000)}`,
-    sentAt: new Date().toISOString()
+    sentAt: new Date().toISOString(),
+    whatsappUrl
   };
 
   persistDispatch(record);

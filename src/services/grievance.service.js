@@ -133,9 +133,10 @@ function submitGrievance(data) {
     .run('ASSIGNED', grievanceId);
 
   // Step 9: Multi-channel WhatsApp / SMS Dispatch
+  let intakeDispatch = null;
   try {
     if (!isAnonymous && complainantPhone) {
-      dispatchService.sendIntakeNotice({
+      intakeDispatch = dispatchService.sendIntakeNotice({
         grievanceNo,
         category: classification.category,
         studentName: complainantName,
@@ -180,7 +181,8 @@ function submitGrievance(data) {
     notification,
     status: 'ASSIGNED',
     isAnonymous,
-    anonymousPin
+    anonymousPin,
+    whatsappUrl: intakeDispatch?.whatsappUrl || null
   };
 }
 
