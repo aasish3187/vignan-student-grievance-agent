@@ -355,7 +355,19 @@ function appealGrievance(idOrNo, reason, actorUserId) {
 /**
  * Rate satisfaction after closure.
  */
-function rateSatisfaction(idOrNo, rating, comment, actorUserId) {
+function rateSatisfaction(idOrNo, ratingOrPayload, commentArg, actorUserIdArg) {
+  let rating = ratingOrPayload;
+  let comment = commentArg;
+  let actorUserId = actorUserIdArg;
+
+  if (typeof ratingOrPayload === 'object' && ratingOrPayload !== null) {
+    rating = ratingOrPayload.rating;
+    comment = ratingOrPayload.comment;
+    actorUserId = commentArg || ratingOrPayload.actorUserId;
+  }
+
+  rating = Number(rating);
+
   const db = getDb();
   const grievance = db.prepare('SELECT * FROM grievances WHERE grievance_id = ? OR grievance_no = ?').get(idOrNo, idOrNo);
   if (!grievance) throw new Error('Grievance not found');
@@ -370,6 +382,15 @@ function rateSatisfaction(idOrNo, rating, comment, actorUserId) {
     `Rating: ${rating}/5` + (comment ? ` — ${comment}` : ''));
 
   addEvent(db, grievance.grievance_id, 'CLOSED', actorUserId, null, 'Case closed after satisfaction feedback');
+
+  notificationService.notifyFeedback({
+    grievanceId: grievance.grievance_id,
+    grievanceNo: grievance.grievance_no,
+    rating,
+    comment,
+    category: grievance.category,
+    departmentId: grievance.department_id
+  });
 
   return { success: true, grievanceNo: grievance.grievance_no };
 }

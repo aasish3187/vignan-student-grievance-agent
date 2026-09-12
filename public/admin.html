@@ -85,6 +85,31 @@
           </div>
         </div>
 
+        <!-- Notification Center Bell -->
+        <div class="notif-bell-wrapper" id="notifBellWrapper">
+          <button type="button" class="nav-key nav-key-notif" id="notifBellBtn" onclick="toggleNotificationCenter()" title="Notifications & Rating Alerts" aria-label="Notifications" aria-expanded="false">
+            <svg class="nav-key-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="notif-count-badge" id="notifCountBadge" style="display:none;">0</span>
+          </button>
+          
+          <!-- Notification Dropdown Menu -->
+          <div class="notif-dropdown-menu" id="notifDropdownMenu" style="display:none;" role="region" aria-label="Recent Alerts">
+            <div class="notif-dropdown-header">
+              <div class="notif-header-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span>Administrative Alerts</span>
+              </div>
+              <button type="button" class="notif-clear-btn" onclick="clearAllNotifications()">Mark Read</button>
+            </div>
+            <div class="notif-dropdown-list" id="notifDropdownList">
+              <p class="notif-empty-state">No new alerts received</p>
+            </div>
+          </div>
+        </div>
+
         <button class="nav-key nav-key-action" onclick="triggerSLACheck()" title="Run statutory SLA compliance scan & trigger HoD/Dean escalations">
           <svg class="nav-key-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
@@ -548,6 +573,8 @@
         </button>
       </div>
     </div>
+  </div>
+
   <!-- ===== OFFICIAL RESOLUTION LETTER MODAL ===== -->
   <div class="modal-overlay dossier-overlay" id="resolutionLetterModal" style="display:none;" onclick="if(event.target === this) closeResolutionLetterModal()" role="dialog" aria-modal="true" aria-labelledby="resolutionLetterModalTitle">
     <div class="letter-modal-card">
@@ -572,6 +599,14 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- ===== TOP-RIGHT FLOATING NOTIFICATION CONTAINER ===== -->
+  <div class="top-right-notification-container" id="topRightNotificationContainer" aria-live="polite" role="region" aria-label="Administrative Notifications"></div>
+
+  <!-- Fallback Toast for general status messages -->
+  <div class="admin-fallback-toast" id="toast" style="display:none;" role="status">
+    <div id="toastContent"></div>
   </div>
 
   <script src="admin.js"></script>

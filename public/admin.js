@@ -202,8 +202,11 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAuthorityHeader();
   renderScopeBar();
   loadDashboard();
-  // Auto-refresh every 60 seconds
+  pollInstitutionalNotifications();
+  // Auto-refresh dashboard every 60 seconds
   setInterval(loadDashboard, 60000);
+  // Auto-poll notifications every 4 seconds for real-time rating alerts
+  setInterval(pollInstitutionalNotifications, 4000);
 });
 
 async function loadDashboard() {
@@ -1451,20 +1454,301 @@ async function triggerSLACheck() {
 }
 
 // ---------------------------------------------------------------
-// Toast helper
+// Top-Right Notifications & Institutional Notification Center
+// Strict Rating Colors:
+// - Rating 1 or 2: Red (#dc2626)
+// - Rating 3: White (#ffffff)
+// - Remaining (4 or 5): Green (#16a34a)
+// - Escalations / SLA Breach: Crimson (#991b1b)
 // ---------------------------------------------------------------
+
+let seenNotificationIds = new Set();
+let unreadNotifCount = 0;
+let isFirstNotifLoad = true;
+
+async function pollInstitutionalNotifications() {
+  try {
+    const res = await fetch(`${API_BASE}/admin/notifications`, { headers: getAuthHeaders() });
+    const json = await res.json();
+    if (!json.success || !Array.isArray(json.data)) return;
+
+    const notifs = json.data;
+
+    if (isFirstNotifLoad) {
+      notifs.forEach(n => seenNotificationIds.add(n.id || `${n.grievanceNo}_${n.type}_${n.timestamp}`));
+      isFirstNotifLoad = false;
+      renderNotificationDropdown(notifs);
+      return;
+    }
+
+    // Identify brand new notifications not yet displayed as toasts
+    const newAlerts = [];
+    for (const notif of notifs) {
+      const key = notif.id || `${notif.grievanceNo}_${notif.type}_${notif.timestamp}`;
+      if (!seenNotificationIds.has(key)) {
+        seenNotificationIds.add(key);
+        newAlerts.push(notif);
+      }
+    }
+
+    if (newAlerts.length > 0) {
+      unreadNotifCount += newAlerts.length;
+      updateNotifBadge();
+      renderNotificationDropdown(notifs);
+
+      // Pop up floating top-right toast for each new notification
+      for (const notif of newAlerts) {
+        triggerTopRightNotification(notif);
+      }
+    }
+  } catch (err) {
+    console.error('Error polling notifications:', err);
+  }
+}
+
+function updateNotifBadge() {
+  const badge = document.getElementById('notifCountBadge');
+  if (!badge) return;
+  if (unreadNotifCount > 0) {
+    badge.textContent = unreadNotifCount > 9 ? '9+' : unreadNotifCount;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function toggleNotificationCenter() {
+  const menu = document.getElementById('notifDropdownMenu');
+  const btn = document.getElementById('notifBellBtn');
+  if (!menu) return;
+  const isVisible = menu.style.display === 'flex';
+  if (isVisible) {
+    menu.style.display = 'none';
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  } else {
+    menu.style.display = 'flex';
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    // Refresh list
+    fetch(`${API_BASE}/admin/notifications`, { headers: getAuthHeaders() })
+      .then(r => r.json())
+      .then(j => { if (j.success && j.data) renderNotificationDropdown(j.data); })
+      .catch(() => {});
+  }
+}
+window.toggleNotificationCenter = toggleNotificationCenter;
+
+// Close dropdown on outside click
+document.addEventListener('click', (e) => {
+  const wrapper = document.getElementById('notifBellWrapper');
+  const menu = document.getElementById('notifDropdownMenu');
+  if (menu && menu.style.display === 'flex') {
+    if (wrapper && !wrapper.contains(e.target)) {
+      menu.style.display = 'none';
+      const btn = document.getElementById('notifBellBtn');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+  }
+});
+
+function clearAllNotifications() {
+  unreadNotifCount = 0;
+  updateNotifBadge();
+  const listEl = document.getElementById('notifDropdownList');
+  if (listEl) {
+    listEl.querySelectorAll('.notif-item').forEach(item => {
+      item.style.opacity = '0.65';
+    });
+  }
+}
+window.clearAllNotifications = clearAllNotifications;
+
+function renderNotificationDropdown(notifs) {
+  const listEl = document.getElementById('notifDropdownList');
+  if (!listEl) return;
+
+  if (!notifs || notifs.length === 0) {
+    listEl.innerHTML = '<p class="notif-empty-state">No new alerts received</p>';
+    return;
+  }
+
+  listEl.innerHTML = notifs.slice(0, 15).map(n => {
+    let pillClass = 'pill-general';
+    let pillLabel = n.type || 'NOTICE';
+
+    if (n.type === 'FEEDBACK') {
+      const r = Number(n.rating);
+      if (r === 1 || r === 2) {
+        pillClass = 'pill-rating-red';
+        pillLabel = `Rating: ${r}/5 (Critical)`;
+      } else if (r === 3) {
+        pillClass = 'pill-rating-white';
+        pillLabel = `Rating: ${r}/5 (Neutral)`;
+      } else {
+        pillClass = 'pill-rating-green';
+        pillLabel = `Rating: ${r}/5 (Positive)`;
+      }
+    } else if (n.type === 'ESCALATION') {
+      pillClass = 'pill-escalation';
+      pillLabel = 'Escalated (SLA Breach)';
+    } else if (n.type === 'RESOLUTION') {
+      pillClass = 'pill-rating-green';
+      pillLabel = 'Resolved';
+    }
+
+    const timeStr = n.timestamp ? new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
+    const clickHandler = n.grievanceId ? `onclick="openCaseDossier('${n.grievanceId}'); toggleNotificationCenter();"` : '';
+
+    return `
+      <div class="notif-item" ${clickHandler}>
+        <div class="notif-item-top">
+          <span class="notif-item-pill ${pillClass}">${escapeHtml(pillLabel)}</span>
+          <span class="notif-item-time">${timeStr}</span>
+        </div>
+        <div class="notif-item-title">${escapeHtml(n.title || n.grievanceNo || 'Administrative Notice')}</div>
+        <div class="notif-item-desc">${escapeHtml(n.body || n.comment || '')}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function getRatingStarsSvg(rating, starFillColor) {
+  const r = Math.max(1, Math.min(5, Math.round(Number(rating) || 5)));
+  let starsHtml = '';
+  for (let i = 1; i <= 5; i++) {
+    const isFilled = i <= r;
+    starsHtml += `
+      <svg class="notif-star-svg" viewBox="0 0 24 24" fill="${isFilled ? (starFillColor || 'currentColor') : 'none'}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      </svg>
+    `;
+  }
+  return `<div class="notif-stars-group">${starsHtml}</div>`;
+}
+
+function triggerTopRightNotification(notif) {
+  const container = document.getElementById('topRightNotificationContainer');
+  if (!container) return;
+
+  const toastId = 'toast_' + Math.random().toString(36).substring(2, 9);
+  const toastEl = document.createElement('div');
+  toastEl.id = toastId;
+  toastEl.className = 'admin-top-right-toast';
+
+  let colorClass = 'notif-toast-blue';
+  let tagLabel = 'ALERT';
+  let title = escapeHtml(notif.title || 'Administrative Notification');
+  let msg = escapeHtml(notif.body || '');
+  let starStripHtml = '';
+  let starColor = 'currentColor';
+
+  if (notif.type === 'FEEDBACK') {
+    const r = Number(notif.rating);
+    if (r === 1 || r === 2) {
+      // 1 or 2: Red
+      colorClass = 'notif-toast-red';
+      tagLabel = 'STUDENT RATING: 1-2 STARS (CRITICAL)';
+      starColor = '#ffffff';
+    } else if (r === 3) {
+      // 3: White
+      colorClass = 'notif-toast-white';
+      tagLabel = 'STUDENT RATING: 3 STARS (NEUTRAL)';
+      starColor = '#f59e0b';
+    } else {
+      // Remaining (4 or 5): Green
+      colorClass = 'notif-toast-green';
+      tagLabel = 'STUDENT RATING: 4-5 STARS (POSITIVE)';
+      starColor = '#ffffff';
+    }
+
+    title = `Student Rated Redressal — ${r}/5 Stars`;
+    starStripHtml = `
+      <div class="notif-toast-rating-strip">
+        ${getRatingStarsSvg(r, starColor)}
+        <span style="font-weight:700; font-size:12px; margin-left:4px;">${r} out of 5</span>
+      </div>
+    `;
+    if (notif.comment) {
+      msg = `Grievance #${escapeHtml(notif.grievanceNo)}: "${escapeHtml(notif.comment)}"`;
+    } else {
+      msg = `Student submitted a ${r}-star satisfaction rating for Grievance #${escapeHtml(notif.grievanceNo)}.`;
+    }
+  } else if (notif.type === 'ESCALATION') {
+    colorClass = 'notif-toast-escalation';
+    tagLabel = 'SLA BREACH ESCALATION';
+  } else if (notif.type === 'RESOLUTION') {
+    colorClass = 'notif-toast-resolved';
+    tagLabel = 'OFFICIAL RESOLUTION';
+  }
+
+  toastEl.classList.add(colorClass);
+
+  toastEl.innerHTML = `
+    <div class="notif-toast-topbar">
+      <div class="notif-toast-meta">
+        <span class="notif-tag">${tagLabel}</span>
+        <span class="notif-time-ago">Just now</span>
+      </div>
+      <button type="button" class="notif-close-btn" onclick="dismissTopRightToast('${toastId}')" title="Dismiss">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="notif-toast-body">
+      <div class="notif-toast-title">${title}</div>
+      ${starStripHtml}
+      <div class="notif-toast-msg">${msg}</div>
+    </div>
+    <div class="notif-toast-actions">
+      ${notif.grievanceId ? `
+        <button type="button" class="notif-action-btn" onclick="openCaseDossier('${notif.grievanceId}'); dismissTopRightToast('${toastId}');">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+          <span>View Case Dossier</span>
+        </button>
+      ` : ''}
+      <button type="button" class="notif-action-btn" onclick="dismissTopRightToast('${toastId}')" style="opacity:0.85;">
+        <span>Dismiss</span>
+      </button>
+    </div>
+  `;
+
+  container.appendChild(toastEl);
+
+  // Auto-dismiss after 8.5 seconds
+  setTimeout(() => {
+    dismissTopRightToast(toastId);
+  }, 8500);
+}
+window.triggerTopRightNotification = triggerTopRightNotification;
+
+function dismissTopRightToast(toastId) {
+  const toast = document.getElementById(toastId);
+  if (!toast) return;
+  toast.classList.add('hiding');
+  setTimeout(() => {
+    if (toast && toast.parentNode) toast.parentNode.removeChild(toast);
+  }, 320);
+}
+window.dismissTopRightToast = dismissTopRightToast;
+
+// Expose instant test trigger for developer and test automation
+window.triggerTestFeedbackNotification = function(rating, comment, grievanceNo) {
+  triggerTopRightNotification({
+    type: 'FEEDBACK',
+    rating: Number(rating),
+    comment: comment || 'Student feedback verification test note.',
+    grievanceNo: grievanceNo || 'GRV-2026-TEST',
+    timestamp: new Date().toISOString()
+  });
+};
+
 function showToast(text) {
-  const toast = document.getElementById('toast');
-  const content = document.getElementById('toastContent');
-  if (!toast || !content) return;
-
-  content.innerHTML = text.replace(/\n/g, '<br>');
-  toast.style.display = 'block';
-
-  clearTimeout(window._toastTimeout);
-  window._toastTimeout = setTimeout(() => {
-    toast.style.display = 'none';
-  }, 6000);
+  triggerTopRightNotification({
+    type: 'ACKNOWLEDGEMENT',
+    title: 'System Notice',
+    body: text
+  });
 }
 
 function escapeHtml(str) {
@@ -1475,3 +1759,4 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
+
