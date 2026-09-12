@@ -150,6 +150,10 @@ function setupForm() {
   setupCustomCategorySelect();
   setupCustomDepartmentSelect();
 
+  // Voice Dictation & Evidence Upload
+  setupEvidenceUpload();
+  setupVoiceDictation();
+
   // Character Counter
   const desc = document.getElementById('description');
   const charCount = document.getElementById('charCount');
@@ -409,7 +413,11 @@ async function submitGrievance(e) {
     is_anonymous: isAnon,
     complainant_name: isAnon ? null : name,
     complainant_regd_no: isAnon ? null : regdNo,
-    complainant_phone: isAnon ? null : phone
+    complainant_phone: isAnon ? null : phone,
+    attachment_name: currentAttachment ? currentAttachment.name : null,
+    attachment_type: currentAttachment ? currentAttachment.type : null,
+    attachment_data: currentAttachment ? currentAttachment.data : null,
+    _vignan_hp_check: document.getElementById('vignanHpCheck')?.value || ''
   };
 
   try {
@@ -499,13 +507,26 @@ function showSuccess(data, info) {
       <span class="label">Confidence</span>
       <span class="value">${((data.classification?.confidence || 0) * 100).toFixed(1)}%</span>
     </div>
+    ${currentAttachment ? `
+    <div class="success-detail-row">
+      <span class="label">Evidence File</span>
+      <span class="value">${escapeHtml(currentAttachment.name)} (Encrypted & Attached)</span>
+    </div>` : ''}
+    ${!info.isAnon && info.phone ? `
+    <div class="success-detail-row" style="background:#f0fdf4;margin:8px -8px 0;padding:10px 8px;border-radius:6px;border:1px solid #bbf7d0;">
+      <span class="label" style="color:#15803d;display:flex;align-items:center;gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+        Instant Dispatch
+      </span>
+      <span class="value" style="color:#15803d;font-weight:600;">WhatsApp acknowledgment dispatched to +91 ${escapeHtml(info.phone.slice(-10))}</span>
+    </div>` : ''}
     ${isStatutory ? `
     <div class="success-detail-row" style="background:#fde8e8;margin:8px -8px -8px;padding:12px 8px;border-radius:0 0 8px 8px;">
       <span class="label" style="color:#d62828;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px;margin-right:4px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        Statutory
+        Statutory Route
       </span>
-      <span class="value" style="color:#d62828;">Direct committee route — NO AI processing</span>
+      <span class="value" style="color:#d62828;">Direct committee route — Anti-Ragging / ICC Emergency SOS Dispatched</span>
     </div>` : ''}
   `;
 }
@@ -516,6 +537,8 @@ function resetForm() {
   document.getElementById('grievanceForm').reset();
   resetCustomCategorySelect();
   resetCustomDepartmentSelect();
+  clearAttachment();
+  if (typeof stopVoiceRecording === 'function') stopVoiceRecording();
 
   const anonToggle = document.getElementById('anonToggle');
   if (anonToggle) {
@@ -527,6 +550,260 @@ function resetForm() {
   if (statWarn) statWarn.classList.remove('visible');
   const charCount = document.getElementById('charCount');
   if (charCount) charCount.textContent = '0 / 5000';
+}
+
+// ===== EVIDENCE UPLOAD & DRAG-AND-DROP =====
+let currentAttachment = null;
+
+function setupEvidenceUpload() {
+  const dropzone = document.getElementById('evidenceDropzone');
+  const fileInput = document.getElementById('evidenceFileInput');
+  const previewCard = document.getElementById('evidencePreviewCard');
+  const prompt = document.getElementById('dropzonePrompt');
+  const btnRemove = document.getElementById('btnRemoveEvidence');
+  const filenameEl = document.getElementById('previewFilename');
+  const filesizeEl = document.getElementById('previewFilesize');
+  const mediaContainer = document.getElementById('previewMediaContainer');
+
+  if (!dropzone || !fileInput) return;
+
+  dropzone.addEventListener('click', (e) => {
+    if (e.target.closest('#btnRemoveEvidence')) return;
+    fileInput.click();
+  });
+
+  dropzone.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      fileInput.click();
+    }
+  });
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add('dragover');
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove('dragover');
+    });
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    const files = e.dataTransfer?.files;
+    if (files && files.length > 0) {
+      processSelectedFile(files[0]);
+    }
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files && fileInput.files.length > 0) {
+      processSelectedFile(fileInput.files[0]);
+    }
+  });
+
+  if (btnRemove) {
+    btnRemove.addEventListener('click', (e) => {
+      e.stopPropagation();
+      clearAttachment();
+    });
+  }
+
+  function processSelectedFile(file) {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    const maxBytes = 5 * 1024 * 1024; // 5MB
+
+    if (!allowed.includes(file.type) && !file.name.match(/\.(jpg|jpeg|png|webp|pdf)$/i)) {
+      alert('Invalid file format. Please attach a photo (.jpg, .png, .webp) or document (.pdf).');
+      return;
+    }
+
+    if (file.size > maxBytes) {
+      alert('File exceeds 5MB limit. Please upload a smaller compressed file or screenshot.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const base64Data = evt.target.result;
+      currentAttachment = {
+        name: file.name,
+        type: file.type || (file.name.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg'),
+        data: base64Data,
+        size: file.size
+      };
+
+      if (filenameEl) filenameEl.textContent = file.name;
+      if (filesizeEl) filesizeEl.textContent = formatBytes(file.size);
+
+      if (mediaContainer) {
+        if (currentAttachment.type.startsWith('image/')) {
+          mediaContainer.innerHTML = `<img src="${base64Data}" alt="Evidence thumbnail">`;
+        } else {
+          mediaContainer.innerHTML = `
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>`;
+        }
+      }
+
+      if (prompt) prompt.style.display = 'none';
+      if (previewCard) previewCard.style.display = 'flex';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+  }
+}
+
+function clearAttachment() {
+  currentAttachment = null;
+  const fileInput = document.getElementById('evidenceFileInput');
+  if (fileInput) fileInput.value = '';
+  const prompt = document.getElementById('dropzonePrompt');
+  const previewCard = document.getElementById('evidencePreviewCard');
+  if (prompt) prompt.style.display = 'flex';
+  if (previewCard) previewCard.style.display = 'none';
+}
+
+// ===== VERNACULAR VOICE DICTATION (TELUGU & ENGLISH) =====
+let currentVoiceLang = 'en-IN';
+let speechRecognizer = null;
+let isRecordingVoice = false;
+
+function stopVoiceRecording() {
+  isRecordingVoice = false;
+  if (speechRecognizer) {
+    try { speechRecognizer.stop(); } catch(e) {}
+    speechRecognizer = null;
+  }
+  const btnVoice = document.getElementById('btnVoiceInput');
+  const micLabel = document.getElementById('micStatusText');
+  const banner = document.getElementById('voiceStatusBanner');
+  if (btnVoice) btnVoice.classList.remove('recording');
+  if (micLabel) micLabel.textContent = 'Voice Dictation';
+  if (banner) banner.style.display = 'none';
+}
+
+function setupVoiceDictation() {
+  const btnVoice = document.getElementById('btnVoiceInput');
+  const banner = document.getElementById('voiceStatusBanner');
+  const statusMsg = document.getElementById('voiceStatusMsg');
+  const micLabel = document.getElementById('micStatusText');
+  const langEn = document.getElementById('langEnBtn');
+  const langTe = document.getElementById('langTeBtn');
+  const desc = document.getElementById('description');
+
+  if (!btnVoice || !desc) return;
+
+  if (langEn && langTe) {
+    langEn.addEventListener('click', () => {
+      langEn.classList.add('active');
+      langTe.classList.remove('active');
+      currentVoiceLang = 'en-IN';
+      if (isRecordingVoice) {
+        stopVoiceRecording();
+        startVoiceRecording();
+      }
+    });
+
+    langTe.addEventListener('click', () => {
+      langTe.classList.add('active');
+      langEn.classList.remove('active');
+      currentVoiceLang = 'te-IN';
+      if (isRecordingVoice) {
+        stopVoiceRecording();
+        startVoiceRecording();
+      }
+    });
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    btnVoice.title = 'Speech recognition not supported in this browser. Please type directly.';
+    btnVoice.style.opacity = '0.7';
+    btnVoice.addEventListener('click', () => {
+      alert('Voice dictation is supported natively in Google Chrome, Microsoft Edge, and modern Chromium browsers.');
+    });
+    return;
+  }
+
+  btnVoice.addEventListener('click', () => {
+    if (isRecordingVoice) {
+      stopVoiceRecording();
+    } else {
+      startVoiceRecording();
+    }
+  });
+
+  function startVoiceRecording() {
+    try {
+      speechRecognizer = new SpeechRecognition();
+      speechRecognizer.continuous = true;
+      speechRecognizer.interimResults = true;
+      speechRecognizer.lang = currentVoiceLang;
+
+      speechRecognizer.onstart = () => {
+        isRecordingVoice = true;
+        btnVoice.classList.add('recording');
+        if (micLabel) micLabel.textContent = 'Stop Dictation';
+        if (banner) {
+          banner.style.display = 'flex';
+          statusMsg.textContent = `Listening in ${currentVoiceLang === 'te-IN' ? 'Telugu (తెలుగు)' : 'English'}... Speak clearly now.`;
+        }
+      };
+
+      speechRecognizer.onresult = (event) => {
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript + ' ';
+          }
+        }
+        if (finalTranscript) {
+          const currentText = desc.value;
+          desc.value = currentText ? `${currentText.trim()} ${finalTranscript.trim()}` : finalTranscript.trim();
+          desc.dispatchEvent(new Event('input'));
+        }
+      };
+
+      speechRecognizer.onerror = (event) => {
+        console.warn('Voice dictation error:', event.error);
+        if (event.error === 'not-allowed') {
+          alert('Microphone access blocked. Please grant microphone permissions in your browser.');
+        }
+        stopVoiceRecording();
+      };
+
+      speechRecognizer.onend = () => {
+        if (isRecordingVoice) {
+          try {
+            speechRecognizer.start();
+          } catch(e) {
+            stopVoiceRecording();
+          }
+        }
+      };
+
+      speechRecognizer.start();
+    } catch(err) {
+      console.error('Failed to start speech recognition:', err);
+      stopVoiceRecording();
+    }
+  }
 }
 
 // ===== PRIVATE STUDENT TRACKER (REGD NO + PHONE) =====

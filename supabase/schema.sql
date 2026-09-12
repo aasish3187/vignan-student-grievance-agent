@@ -95,6 +95,10 @@ CREATE TABLE IF NOT EXISTS grievances (
   complainant_phone     VARCHAR(25),
   classifier_confidence REAL,
   classifier_keywords   TEXT,
+  attachment_name       TEXT,
+  attachment_type       VARCHAR(100),
+  attachment_data       TEXT,
+  original_transcript   TEXT,
   created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -158,6 +162,23 @@ CREATE TABLE IF NOT EXISTS notifications (
 );
 
 CREATE INDEX IF NOT EXISTS idx_notifications_created ON notifications(created_at DESC);
+
+-- ---------------------------------------------------------------------
+-- 8b. Multi-Channel WhatsApp & SMS Dispatch Audit Log
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS grievance_dispatches (
+  dispatch_id     TEXT PRIMARY KEY,
+  grievance_no    VARCHAR(50) NOT NULL,
+  recipient_phone VARCHAR(50),
+  channel         VARCHAR(50) NOT NULL DEFAULT 'WHATSAPP',
+  alert_type      VARCHAR(100) NOT NULL,
+  message_body    TEXT NOT NULL,
+  status          VARCHAR(30) NOT NULL DEFAULT 'DELIVERED',
+  carrier_ack     VARCHAR(100),
+  dispatched_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_dispatches_grievance_no ON grievance_dispatches(grievance_no);
 
 -- ---------------------------------------------------------------------
 -- 9. AI Agent Audit Trail (AgentOps)

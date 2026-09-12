@@ -983,6 +983,69 @@ async function openCaseDossier(idOrNo) {
     document.getElementById('dossierSubmittedAt').textContent = new Date(d.submitted_at).toLocaleString();
     document.getElementById('dossierChannel').textContent = d.submitted_via || 'WEB PORTAL';
 
+    // 2b. Vernacular Telugu Original Transcript
+    const vernBox = document.getElementById('dossierVernacularBox');
+    const vernText = document.getElementById('dossierVernacularText');
+    if (d.original_transcript) {
+      if (vernBox) vernBox.style.display = 'block';
+      if (vernText) vernText.textContent = d.original_transcript;
+    } else {
+      if (vernBox) vernBox.style.display = 'none';
+    }
+
+    // 2c. Submitted Evidence & Attachments
+    const attachBox = document.getElementById('dossierAttachmentBox');
+    const attachContent = document.getElementById('dossierAttachmentContent');
+    if (d.attachment_data) {
+      if (attachBox) attachBox.style.display = 'block';
+      const isImg = (d.attachment_type || '').startsWith('image/');
+      const attachName = d.attachment_name || (isImg ? 'evidence_photo.jpg' : 'evidence_doc.pdf');
+
+      if (isImg) {
+        attachContent.innerHTML = `
+          <div class="dossier-media-card">
+            <div class="dossier-media-preview" onclick="window.open('${d.attachment_data}', '_blank')">
+              <img src="${d.attachment_data}" alt="${escapeHtml(attachName)}" class="dossier-evidence-img">
+              <div class="media-overlay-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                <span>Click to Expand</span>
+              </div>
+            </div>
+            <div class="dossier-media-footer">
+              <span class="media-filename">${escapeHtml(attachName)}</span>
+              <a href="${d.attachment_data}" download="${escapeHtml(attachName)}" class="btn-dossier-download">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Download Evidence
+              </a>
+            </div>
+          </div>
+        `;
+      } else {
+        attachContent.innerHTML = `
+          <div class="dossier-file-card">
+            <div class="dossier-file-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+            </div>
+            <div class="dossier-file-info">
+              <span class="dossier-file-name">${escapeHtml(attachName)}</span>
+              <span class="dossier-file-type">Official PDF Case Documentation · Encrypted Evidence</span>
+            </div>
+            <a href="${d.attachment_data}" download="${escapeHtml(attachName)}" class="btn-dossier-download">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Download PDF
+            </a>
+          </div>
+        `;
+      }
+    } else {
+      if (attachBox) attachBox.style.display = 'none';
+    }
+
     // 3. AI Classifier Insights
     const conf = Math.round((d.classifier_confidence || 0.88) * 100);
     document.getElementById('dossierConfText').textContent = `${conf}%`;
@@ -1129,6 +1192,43 @@ async function openCaseDossier(idOrNo) {
           alert.textContent = '';
         }
       }
+    }
+
+    // 6c. Multi-Channel WhatsApp & SMS Dispatch Log
+    const dispatchBox = document.getElementById('dossierDispatchBox');
+    const dispatchList = document.getElementById('dossierDispatchList');
+    if (d.dispatch_logs && d.dispatch_logs.length > 0) {
+      if (dispatchBox) dispatchBox.style.display = 'block';
+      let dispatchHtml = '';
+      d.dispatch_logs.forEach(log => {
+        const isAlert = log.alert_type === 'EMERGENCY_SOS';
+        const isResolve = log.alert_type === 'CASE_RESOLVED';
+        const badgeColor = isAlert ? '#fee2e2' : (isResolve ? '#dcfce7' : '#e0f2fe');
+        const textColor = isAlert ? '#991b1b' : (isResolve ? '#166534' : '#0369a1');
+        const borderCol = isAlert ? '#fca5a5' : (isResolve ? '#86efac' : '#7dd3fc');
+        const channelTitle = isAlert ? 'Anti-Ragging Squad SOS' : (isResolve ? 'Resolution & Rating' : 'Intake Acknowledgement');
+
+        dispatchHtml += `
+          <div class="dispatch-log-card" style="border-left: 3.5px solid ${textColor};">
+            <div class="dispatch-log-header">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="background:${badgeColor}; color:${textColor}; border:1px solid ${borderCol}; padding:2px 8px; border-radius:10px; font-size:10.5px; font-weight:700;">
+                  ${log.channel || 'WHATSAPP'}
+                </span>
+                <strong style="font-size:12px; color:#1e293b;">${channelTitle}</strong>
+              </div>
+              <span class="dispatch-status-badge" style="background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0;">
+                ${escapeHtml(log.status || 'DELIVERED')}
+              </span>
+            </div>
+            <div class="dispatch-recipient">Recipient: <strong>${escapeHtml(log.recipient_phone || 'Authority Gate')}</strong> · Sent: ${new Date(log.dispatched_at).toLocaleString()}</div>
+            <div class="dispatch-transcript">"${escapeHtml(log.message_body)}"</div>
+          </div>
+        `;
+      });
+      if (dispatchList) dispatchList.innerHTML = dispatchHtml;
+    } else {
+      if (dispatchBox) dispatchBox.style.display = 'none';
     }
 
     // 7. Lifecycle Audit Trail

@@ -472,11 +472,76 @@
           </div>
         </div>
 
-        <!-- Description -->
+        <!-- Description with Vernacular Voice Dictation Toolbar -->
         <div class="form-group">
-          <label for="description">Describe your grievance <span class="char-count" id="charCount">0 / 5000</span></label>
-          <textarea id="description" rows="6" placeholder="Please describe your grievance in detail. Include dates, names (if applicable), and any evidence references..." required minlength="20" maxlength="5000"></textarea>
+          <div class="desc-header-row">
+            <label for="description">Describe your grievance <span class="char-count" id="charCount">0 / 5000</span></label>
+            <div class="voice-toolbar" id="voiceToolbar">
+              <div class="lang-toggle-group" role="group" aria-label="Voice & Text Language">
+                <button type="button" class="lang-pill active" id="langEnBtn" data-lang="en-IN" title="English language mode">English</button>
+                <button type="button" class="lang-pill" id="langTeBtn" data-lang="te-IN" title="Telugu language mode (Telugu)">తెలుగు</button>
+              </div>
+              <button type="button" class="voice-mic-btn" id="btnVoiceInput" title="Click to dictate using speech-to-text">
+                <svg class="mic-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                  <line x1="12" y1="19" x2="12" y2="23"></line>
+                  <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+                <span class="mic-label" id="micStatusText">Voice Dictation</span>
+              </button>
+            </div>
+          </div>
+          <div class="voice-status-banner" id="voiceStatusBanner" style="display:none;">
+            <div class="voice-recording-pulse"></div>
+            <span id="voiceStatusMsg">Listening... Speak clearly in your selected language.</span>
+          </div>
+          <textarea id="description" rows="6" placeholder="Please describe your grievance in detail. Include dates, names (if applicable), and any evidence references. You can type or speak in Telugu (తెలుగు) or English..." required minlength="20" maxlength="5000"></textarea>
+          <div class="vernacular-hint-bar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <span>Native bilingual support: Dictate or type in Telugu (తెలుగు) or English. AI automatically translates and classifies into proper institutional routing.</span>
+          </div>
         </div>
+
+        <!-- Evidence Attachment Dropzone -->
+        <div class="form-group evidence-form-group">
+          <label class="evidence-main-label">
+            <span>Supporting Evidence & Documents (Optional)</span>
+            <span class="evidence-subtitle">Photos, fee receipts, lab records, medical certificates (.jpg, .png, .pdf up to 5MB)</span>
+          </label>
+          <div class="evidence-dropzone" id="evidenceDropzone" tabindex="0" role="button" aria-label="Upload evidence file">
+            <input type="file" id="evidenceFileInput" accept=".jpg,.jpeg,.png,.webp,.pdf" style="display:none;">
+            <div class="dropzone-inner" id="dropzonePrompt">
+              <div class="dropzone-icon">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <div class="dropzone-text">
+                <span class="dropzone-action">Click to upload or drag & drop</span>
+                <span class="dropzone-hint">JPG, PNG, WEBP, or PDF (Max 5MB) — Encrypted for official dossier review only</span>
+              </div>
+            </div>
+            <!-- File Attached Preview Card -->
+            <div class="evidence-preview-card" id="evidencePreviewCard" style="display:none;">
+              <div class="preview-media-container" id="previewMediaContainer">
+                <!-- Preview icon or thumbnail injected dynamically -->
+              </div>
+              <div class="preview-meta">
+                <span class="preview-filename" id="previewFilename">filename.pdf</span>
+                <span class="preview-filesize" id="previewFilesize">0 KB</span>
+              </div>
+              <button type="button" class="btn-remove-evidence" id="btnRemoveEvidence" title="Remove attachment">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Anti-Spam Honeypot Bot Trap (Invisible to humans) -->
+        <input type="text" name="_vignan_hp_check" id="vignanHpCheck" style="display:none !important; position:absolute; left:-9999px; width:0; height:0;" tabindex="-1" autocomplete="off" aria-hidden="true">
 
         <!-- Submit -->
         <button type="submit" class="btn-primary" id="submitBtn">

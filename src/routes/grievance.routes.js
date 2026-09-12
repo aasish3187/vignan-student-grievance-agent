@@ -8,9 +8,12 @@ const router = express.Router();
 const grievanceService = require('../services/grievance.service');
 const { validateGrievanceSubmission, validateResolution, validateSatisfaction } = require('../middleware/validator');
 const { enforceStatutoryBypass, requireHumanDecision } = require('../middleware/guardrails');
+const { intakeLimiter, honeypotTrap } = require('../middleware/rate-limiter');
 
-// POST /api/grievances — Submit a new grievance
+// POST /api/grievances — Submit a new grievance (protected by rate-limiter and bot trap)
 router.post('/',
+  honeypotTrap,
+  intakeLimiter,
   validateGrievanceSubmission,
   enforceStatutoryBypass,
   (req, res) => {

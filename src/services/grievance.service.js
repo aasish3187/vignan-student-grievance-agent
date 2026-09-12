@@ -11,7 +11,9 @@ const { classify } = require('../core/classifier');
 const { route } = require('../core/router');
 const { calculateDeadline } = require('../core/sla-engine');
 const { sanitizeForStorage } = require('../core/anonymizer');
+const { processMultilingualText } = require('../core/translator');
 const notificationService = require('./notification.service');
+const dispatchService = require('./dispatch.service');
 const { buildScopeClause } = require('./analytics.service');
 
 // Generate human-readable grievance number: GRV-2026-XXXXX
@@ -35,8 +37,13 @@ function submitGrievance(data) {
     processedData = sanitizeForStorage(processedData);
   }
 
+  // Step 1.5: Multilingual Vernacular Analysis (Telugu & English)
+  const langResult = processMultilingualText(processedData.description);
+  const textForClassifier = langResult.isVernacular ? langResult.translatedText : processedData.description;
+  const originalTranscript = langResult.isVernacular ? langResult.originalText : null;
+
   // Step 2: Classify
-  const classification = classify(processedData.description, processedData.category);
+  const classification = classify(textForClassifier, processedData.category);
 
   // Step 3: Route
   const routing = route(classification, processedData.department_id);
@@ -64,7 +71,12 @@ function submitGrievance(data) {
   const complainantPhone = isAnonymous ? null : ((processedData.complainant_phone || '').trim() || null);
   const anonymousPin = isAnonymous ? Math.floor(100000 + Math.random() * 900000).toString() : null;
 
-  // Persist grievance
+  // Extract attachment payload if provided
+  const attachmentName = processedData.attachment_name || null;
+  const attachmentType = processedData.attachment_type || null;
+  const attachmentData = processedData.attachment_data || null;
+
+  // Persist grievance with attachments & multilingual columns
   const stmt = db.prepare(`
     INSERT INTO grievances (
       grievance_id, grievance_no, student_id, is_anonymous,
@@ -74,8 +86,10 @@ function submitGrievance(data) {
       assigned_to_role, committee_id, sla_due_at,
       escalation_level, status,
       anonymous_access_pin,
-      classifier_confidence, classifier_keywords
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      classifier_confidence, classifier_keywords,
+      attachment_name, attachment_type, attachment_data,
+      original_transcript
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   stmt.run(
@@ -99,11 +113,15 @@ function submitGrievance(data) {
     'RECEIVED',
     anonymousPin,
     classification.confidence,
-    JSON.stringify(classification.keywords)
+    JSON.stringify(classification.keywords),
+    attachmentName,
+    attachmentType,
+    attachmentData,
+    originalTranscript
   );
 
   // Step 6: Create SUBMITTED event
-  addEvent(db, grievanceId, 'SUBMITTED', null, null, 'Grievance submitted via ' + (processedData.submitted_via || 'WEB') + (isAnonymous ? ' [Anonymous Whistleblower Mode]' : ` [Student: ${complainantName || 'Identified'} (${complainantRegdNo || 'Verified'})]`));
+  addEvent(db, grievanceId, 'SUBMITTED', null, null, 'Grievance submitted via ' + (processedData.submitted_via || 'WEB') + (isAnonymous ? ' [Anonymous Whistleblower Mode]' : ` [Student: ${complainantName || 'Identified'} (${complainantRegdNo || 'Verified'})]`) + (attachmentName ? ` [Attached Evidence: ${attachmentName}]` : '') + (langResult.isVernacular ? ' [Vernacular Telugu Transcript Processed]' : ''));
 
   // Step 7: Create ACKNOWLEDGED event
   addEvent(db, grievanceId, 'ACKNOWLEDGED', null, 'SYSTEM',
@@ -113,6 +131,30 @@ function submitGrievance(data) {
   // Step 8: Auto-assign status
   db.prepare('UPDATE grievances SET status = ? WHERE grievance_id = ?')
     .run('ASSIGNED', grievanceId);
+
+  // Step 9: Multi-channel WhatsApp / SMS Dispatch
+  try {
+    if (!isAnonymous && complainantPhone) {
+      dispatchService.sendIntakeNotice({
+        grievanceNo,
+        category: classification.category,
+        studentName: complainantName,
+        studentPhone: complainantPhone,
+        assignedTo: routing.description
+      });
+    }
+
+    // Emergency Anti-Ragging Flying Squad SOS Alert
+    if (classification.category === 'RAGGING' || classification.severity === 'CRITICAL' || classification.category === 'HARASSMENT') {
+      dispatchService.sendEmergencySOS({
+        grievanceNo,
+        category: classification.category,
+        description: processedData.description
+      });
+    }
+  } catch (err) {
+    console.error('[DISPATCH ERROR]', err);
+  }
   addEvent(db, grievanceId, 'ASSIGNED', null, 'SYSTEM',
     `Routed to ${routing.assignedRole}` + (routing.committee ? ` (${routing.committee})` : ''));
 
@@ -239,7 +281,8 @@ function getGrievance(idOrNo) {
     ORDER BY ge.occurred_at ASC
   `).all(grievance.grievance_id);
 
-  return { ...grievance, events };
+  const dispatch_logs = dispatchService.getDispatchLogs(grievance.grievance_no);
+  return { ...grievance, events, dispatch_logs };
 }
 
 /**
@@ -329,6 +372,21 @@ function resolveGrievance(idOrNo, resolution, actorUserId) {
     resolution,
     category: grievance.category
   });
+
+  // Automated WhatsApp / SMS dispatch
+  try {
+    if (!grievance.is_anonymous && grievance.complainant_phone) {
+      dispatchService.sendResolutionNotice({
+        grievanceNo: grievance.grievance_no,
+        category: grievance.category,
+        studentName: grievance.complainant_name,
+        studentPhone: grievance.complainant_phone,
+        resolution
+      });
+    }
+  } catch (e) {
+    console.error('[DISPATCH RESOLUTION ERROR]', e);
+  }
 
   return { success: true, resolvedAt, grievanceNo: grievance.grievance_no };
 }

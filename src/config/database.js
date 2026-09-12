@@ -212,6 +212,40 @@ function initSchema() {
     conn.exec('CREATE INDEX IF NOT EXISTS idx_grievance_complainant_lookup ON grievances(complainant_regd_no, complainant_phone);');
   } catch (e) {}
 
+  // Safe migration for attachments & evidence uploads
+  try {
+    conn.exec('ALTER TABLE grievances ADD COLUMN attachment_name TEXT;');
+  } catch (e) {}
+  try {
+    conn.exec('ALTER TABLE grievances ADD COLUMN attachment_type TEXT;');
+  } catch (e) {}
+  try {
+    conn.exec('ALTER TABLE grievances ADD COLUMN attachment_data TEXT;');
+  } catch (e) {}
+
+  // Safe migration for vernacular original transcript (Telugu / Multilingual)
+  try {
+    conn.exec('ALTER TABLE grievances ADD COLUMN original_transcript TEXT;');
+  } catch (e) {}
+
+  // Multi-Channel Dispatch Logs Table
+  try {
+    conn.exec(`
+      CREATE TABLE IF NOT EXISTS grievance_dispatches (
+        dispatch_id     TEXT PRIMARY KEY,
+        grievance_no    TEXT NOT NULL,
+        recipient_phone TEXT,
+        channel         TEXT NOT NULL DEFAULT 'WHATSAPP',
+        alert_type      TEXT NOT NULL,
+        message_body    TEXT NOT NULL,
+        status          TEXT NOT NULL DEFAULT 'DELIVERED',
+        carrier_ack     TEXT,
+        dispatched_at   TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_dispatches_grievance_no ON grievance_dispatches(grievance_no);
+    `);
+  } catch (e) {}
+
   // Safe backfill for pre-seeded student complaints
   try {
     conn.exec(`
