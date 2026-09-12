@@ -1619,8 +1619,23 @@ body {
   background: #f8fafc;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
+  gap: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dossier-footer .modal-btn {
+  flex: 1;
+  height: 48px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
 }
 
 .modal-btn-primary {
@@ -1633,6 +1648,21 @@ body {
   background: var(--primary-dark);
   border-color: var(--primary-dark);
   color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26,60,125,0.3);
+}
+
+.dossier-footer .modal-btn-cancel {
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.dossier-footer .modal-btn-cancel:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: var(--primary);
+  transform: translateY(-1px);
 }
 
 /* ===== DOSSIER RESOLUTION ACTION CARD ===== */
