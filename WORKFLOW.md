@@ -4,7 +4,13 @@ Comprehensive architectural specification and process flow for **Agent 46 (Stude
 
 ---
 
-## 1. End-to-End Workflow Diagram
+## Visual Architecture Overview
+
+![Agent 46: System Architecture & Workflow](public/assets/images/workflow-diagram.png)
+
+---
+
+## 1. End-to-End Workflow Flowchart
 
 ```mermaid
 flowchart TD

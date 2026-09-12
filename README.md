@@ -13,6 +13,8 @@ Autonomous, policy-driven Student Grievance Redressal and Institutional Governan
 
 For the detailed multi-stage technical specification, see [WORKFLOW.md](./WORKFLOW.md).
 
+![Agent 46: System Architecture & Workflow](public/assets/images/workflow-diagram.png)
+
 ```mermaid
 flowchart TD
     %% Styling
