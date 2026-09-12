@@ -157,5 +157,31 @@ The server will start on `http://localhost:3000`.
 
 ---
 
+## Enterprise Campus Database Setup (Supabase / PostgreSQL)
+
+For scaling to **25,000+ university campus students**, Agent 46 includes a production **Supabase (Managed PostgreSQL)** integration with zero-downtime dual-engine fallback.
+
+### 1. Create a Free Supabase Project
+1. Go to [https://supabase.com](https://supabase.com) and create a free project.
+2. In the Supabase dashboard, open the **SQL Editor**.
+3. Open [`supabase/schema.sql`](./supabase/schema.sql), copy its contents, paste into the SQL Editor, and click **Run**.
+
+### 2. Connect to Agent 46
+Copy your PostgreSQL connection URI from **Project Settings → Database → Connection string (URI)** and set it on your server (or in Render environment variables):
+```env
+DATABASE_URL=postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true
+```
+
+### 3. Sync Existing Campus Records (Optional)
+To migrate all existing grievances, departments, and audit logs into your new Supabase cloud database, run:
+```bash
+npm run db:sync-supabase
+```
+
+*(Note: When `DATABASE_URL` is omitted, Agent 46 automatically defaults to the fast local SQLite engine for development and offline testing.)*
+
+---
+
 ## License
 MIT License. Developed for Vignan University's Integrated AI Hackathon 2026.
+
