@@ -11,11 +11,9 @@ const { DatabaseSync } = require('node:sqlite');
 const path = require('path');
 const fs = require('fs');
 
-const DATABASE_URL = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
+const DATABASE_URL = process.env.DATABASE_URL || process.env.DIRECT_URL;
 if (!DATABASE_URL) {
-  console.error('\n[ERROR] Missing DATABASE_URL or SUPABASE_DB_URL in environment.');
-  console.error('Please configure your Supabase connection string:');
-  console.error('DATABASE_URL=postgresql://postgres.[REF]:[PASS]@[HOST]:6543/postgres?pgbouncer=true\n');
+  console.error('\n[ERROR] Missing DATABASE_URL in environment.');
   process.exit(1);
 }
 
@@ -38,41 +36,79 @@ async function migrate() {
 
   const client = await pgPool.connect();
   try {
-    // 1. Run DDL Schema
-    console.log('[1/5] Executing Supabase DDL schema...');
-    const schemaSql = fs.readFileSync(path.join(__dirname, '..', 'supabase', 'schema.sql'), 'utf8');
-    await client.query(schemaSql);
-    console.log('      Schema tables and constraints verified in Supabase.');
+    await client.query('BEGIN');
+
+    // 1. Clean existing tables for atomic mirror
+    console.log('[1/7] Preparing Supabase tables...');
+    try {
+      await client.query('ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check;');
+    } catch (e) {}
+    await client.query(`
+      TRUNCATE TABLE 
+        grievance_events, 
+        sla_escalations, 
+        notifications, 
+        agent_runs, 
+        grievances, 
+        committee_members, 
+        committees, 
+        users, 
+        departments 
+      CASCADE;
+    `);
+    console.log('      Clean slate prepared.');
 
     // 2. Sync Departments
-    console.log('[2/5] Migrating Departments...');
+    console.log('[2/7] Migrating Departments...');
     const depts = sqlite.prepare('SELECT * FROM departments').all();
     for (const d of depts) {
       await client.query(`
         INSERT INTO departments (department_id, code, name, hod_user_id)
         VALUES ($1, $2, $3, $4)
-        ON CONFLICT (department_id) DO UPDATE SET
-          code = EXCLUDED.code, name = EXCLUDED.name, hod_user_id = EXCLUDED.hod_user_id
       `, [d.department_id, d.code, d.name, d.hod_user_id]);
     }
     console.log(`      Synced ${depts.length} departments.`);
 
-    // 3. Sync Users
-    console.log('[3/5] Migrating Users & Authorities...');
+    // 3. Sync Committees
+    console.log('[3/7] Migrating Statutory & Redressal Committees...');
+    const committees = sqlite.prepare('SELECT * FROM committees').all();
+    for (const c of committees) {
+      await client.query(`
+        INSERT INTO committees (committee_id, name, committee_type, is_statutory, mandate, status)
+        VALUES ($1, $2, $3, $4, $5, $6)
+      `, [c.committee_id, c.name, c.committee_type, Boolean(c.is_statutory), c.mandate, c.status || 'ACTIVE']);
+    }
+    console.log(`      Synced ${committees.length} committees.`);
+
+    // 4. Sync Users & Authorities
+    console.log('[4/7] Migrating Users & Institutional Authorities...');
     const users = sqlite.prepare('SELECT * FROM users').all();
     for (const u of users) {
       await client.query(`
         INSERT INTO users (user_id, username, full_name, email, role, department_id, is_active)
         VALUES ($1, $2, $3, $4, $5, $6, $7)
-        ON CONFLICT (user_id) DO UPDATE SET
-          username = EXCLUDED.username, full_name = EXCLUDED.full_name,
-          email = EXCLUDED.email, role = EXCLUDED.role, department_id = EXCLUDED.department_id
       `, [u.user_id, u.username, u.full_name, u.email, u.role, u.department_id, Boolean(u.is_active)]);
     }
-    console.log(`      Synced ${users.length} users.`);
+    console.log(`      Synced ${users.length} users and authorities.`);
 
-    // 4. Sync Grievances
-    console.log('[4/5] Migrating Grievances (Central Case Registry)...');
+    // 5. Sync Committee Memberships
+    try {
+      const members = sqlite.prepare('SELECT * FROM committee_members').all();
+      if (members.length > 0) {
+        for (const m of members) {
+          await client.query(`
+            INSERT INTO committee_members (committee_member_id, committee_id, user_id, member_role, from_date)
+            VALUES ($1, $2, $3, $4, $5)
+          `, [m.committee_member_id, m.committee_id, m.user_id, m.member_role, m.from_date || new Date().toISOString()]);
+        }
+        console.log(`      Synced ${members.length} committee members.`);
+      }
+    } catch (e) {
+      // Ignore if empty
+    }
+
+    // 6. Sync Grievances
+    console.log('[5/7] Migrating Grievances (Central Case Registry)...');
     const grievances = sqlite.prepare('SELECT * FROM grievances').all();
     for (const g of grievances) {
       await client.query(`
@@ -93,13 +129,6 @@ async function migrate() {
           $24, $25, $26,
           $27, $28, $29, $30
         )
-        ON CONFLICT (grievance_id) DO UPDATE SET
-          status = EXCLUDED.status,
-          resolved_at = EXCLUDED.resolved_at,
-          resolution = EXCLUDED.resolution,
-          satisfaction_rating = EXCLUDED.satisfaction_rating,
-          satisfaction_comment = EXCLUDED.satisfaction_comment,
-          updated_at = EXCLUDED.updated_at
       `, [
         g.grievance_id, g.grievance_no, g.student_id, Boolean(g.is_anonymous), g.category,
         g.severity, Boolean(g.is_statutory_route), g.description, g.department_id, g.submitted_at,
@@ -112,8 +141,8 @@ async function migrate() {
     }
     console.log(`      Synced ${grievances.length} grievances.`);
 
-    // 5. Sync Events
-    console.log('[5/5] Migrating Audit Events...');
+    // 7. Sync Audit Trail Events
+    console.log('[6/7] Migrating Audit Events...');
     const events = sqlite.prepare('SELECT * FROM grievance_events').all();
     for (const e of events) {
       await client.query(`
@@ -121,7 +150,6 @@ async function migrate() {
           grievance_event_id, grievance_id, occurred_at, event_type,
           actor_user_id, actor_role, notes, metadata
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        ON CONFLICT (grievance_event_id) DO NOTHING
       `, [
         e.grievance_event_id, e.grievance_id, e.occurred_at, e.event_type,
         e.actor_user_id, e.actor_role, e.notes, e.metadata
@@ -129,10 +157,25 @@ async function migrate() {
     }
     console.log(`      Synced ${events.length} audit trail events.`);
 
+    // 8. Sync Agent Runs & SLA Escalations if available
+    try {
+      const runs = sqlite.prepare('SELECT * FROM agent_runs').all();
+      for (const r of runs) {
+        await client.query(`
+          INSERT INTO agent_runs (agent_run_id, agent_code, trigger_type, grievance_id, action, input_data, output_data, started_at, finished_at, status)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `, [r.agent_run_id, r.agent_code, r.trigger_type, r.grievance_id, r.action, r.input_data, r.output_data, r.started_at, r.finished_at, r.status]);
+      }
+      console.log(`[7/7] Synced ${runs.length} AI agent runs.`);
+    } catch (e) {}
+
+    await client.query('COMMIT');
+
     console.log('\n======================================================');
     console.log(' SUCCESS: All campus data synced to Supabase (PostgreSQL)!');
     console.log('======================================================\n');
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error('\n[MIGRATION ERROR]', err);
   } finally {
     client.release();

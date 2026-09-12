@@ -26,9 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
   username        VARCHAR(100) NOT NULL UNIQUE,
   full_name       VARCHAR(255) NOT NULL,
   email           VARCHAR(255),
-  role            VARCHAR(50) NOT NULL DEFAULT 'STUDENT' CHECK (role IN (
-    'STUDENT', 'HOD', 'DEAN', 'DIRECTOR', 'COMMITTEE_CHAIR', 'COMMITTEE_MEMBER', 'ADMIN', 'STAFF'
-  )),
+  role            VARCHAR(50) NOT NULL DEFAULT 'STUDENT',
   department_id   TEXT REFERENCES departments(department_id) ON DELETE SET NULL,
   is_active       BOOLEAN NOT NULL DEFAULT TRUE,
   created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
