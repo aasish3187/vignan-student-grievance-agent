@@ -2,6 +2,86 @@
 
 Autonomous, policy-driven Student Grievance Redressal and Institutional Governance System designed for **Vignan's Foundation for Science, Technology & Research (VFSTR)**. Built for the Integrated AI Hackathon 2026.
 
+[![Live Deployment](https://img.shields.io/badge/Live_Deployment-Active-success?style=for-the-badge&logo=render)](https://vignan-student-grievance-agent.onrender.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+**Live Production URL:** [https://vignan-student-grievance-agent.onrender.com/](https://vignan-student-grievance-agent.onrender.com/)
+
+---
+
+## System Architecture & Workflow Diagram
+
+For the detailed multi-stage technical specification, see [WORKFLOW.md](./WORKFLOW.md).
+
+```mermaid
+flowchart TD
+    %% Styling
+    classDef intake fill:#e8f0fe,stroke:#1a3c7d,stroke-width:2px;
+    classDef aiCore fill:#fef3e0,stroke:#d97706,stroke-width:2px;
+    classDef auth fill:#e6f4ea,stroke:#137333,stroke-width:2px;
+    classDef sla fill:#fce8e6,stroke:#c5221f,stroke-width:2px;
+    classDef resolution fill:#f3e8fd,stroke:#7c3aed,stroke-width:2px;
+    classDef mesh fill:#e0f2fe,stroke:#0284c7,stroke-width:2px;
+
+    %% 1. INTAKE LAYER
+    subgraph Intake["1. DUAL-TRACK INTAKE LAYER"]
+        Student["Student / Complainant"] --> Choice{"Select Intake Mode"}
+        Choice -->|Verified Mode| VerTrack["Verified Student Track\n• Full Name & Regd No\n• Contact & Department"]:::intake
+        Choice -->|Anonymous Mode| AnonTrack["Whistleblower Track\n• Full Identity Redaction\n• Cryptographic 6-Digit PIN"]:::intake
+        Robot["Robot AI Assistant\n(Interactive Guide)"] -.->|Answers Policy & SLA FAQs| Student
+    end
+
+    %% 2. AI CLASSIFICATION & ROUTING
+    subgraph AICore["2. INTELLIGENT ROUTING & POLICY ENGINE"]
+        VerTrack --> Guardrail["Guardrails & PII Sanitization"]:::aiCore
+        AnonTrack --> Guardrail
+        Guardrail --> Classifier["AI Classifier & Priority Scorer"]:::aiCore
+        Classifier --> Tagging{"Determine Case Severity & Category"}
+        Tagging -->|Academic / Departmental| R_HOD["Route: Department HoD\n(e.g., HoD CSE, ECE)"]:::auth
+        Tagging -->|Campus-Wide / General| R_Dean["Route: Dean of Student Affairs\n(General Grievance Cell)"]:::auth
+        Tagging -->|Ragging / Bullying / Harassment| R_Statutory["Route: Statutory Committees\n• Anti-Ragging Committee\n• Internal Complaints (ICC)"]:::auth
+    end
+
+    %% 3. DATABASE & SLA MONITORING
+    subgraph StorageSLA["3. DATABASE & SLA MONITORING"]
+        R_HOD --> DB[("SQLite Database\n(grievance.db)")]
+        R_Dean --> DB
+        R_Statutory --> DB
+        
+        CronEngine["Background Cron Engine\n(Active SLA Monitoring)"]:::sla -->|Monitors Deadlines| DB
+        CronEngine --> BreachCheck{"Breach Detected?"}
+        BreachCheck -->|Yes| Escalate["Auto-Escalate Severity\nNotify Higher Authority"]:::sla
+        BreachCheck -->|No| Wait["Maintain Current Status"]
+    end
+
+    %% 4. AUTHORITY CASE DOSSIER & RESOLUTION
+    subgraph AuthorityConsole["4. AUTHORITY CASE DOSSIER & RESOLUTION"]
+        DB --> AuthLogin["Authority Authentication\n(HoDs, Deans, Chairs)"]:::auth
+        AuthLogin --> Dossier["Interactive Case Dossier"]:::auth
+        
+        Precedents["AI Precedents Engine\n(Historical Rulings Retrieval)"]:::aiCore -->|Suggests Benchmarks| Dossier
+        Dossier --> Action["Authority Action & Resolution Notes"]:::auth
+        Action --> GenLetter["Generate Official University Order\n• Dispatch Ref: VFSTR/GRC/...\n• Statutory Seals & Findings\n• 15-Day Appellate Protocol"]:::resolution
+    end
+
+    %% 5. STUDENT NOTIFICATION & FEEDBACK
+    subgraph StudentResolution["5. CLOSURE & FEEDBACK"]
+        GenLetter --> Notify["Student Case Tracking Portal"]:::resolution
+        Notify --> ViewLetter["Download / Print Official Resolution"]:::resolution
+        ViewLetter --> Feedback["Student Submits 1–5 Star Rating\n& Redressal Satisfaction"]:::resolution
+        Feedback --> DB
+    end
+
+    %% 6. MULTI-AGENT MESH INTEGRATION
+    subgraph AgentMesh["6. UNIVERSITY MULTI-AGENT MESH INTEGRATION"]
+        DB <-->|Grievance History| A44["Agent 44: Student 360 & Counseling"]:::mesh
+        DB <-->|Hearing Agendas| A56["Agent 56: Statutory Committees"]:::mesh
+        DB <-->|Defect Trends| A57["Agent 57: IQAC Quality Audits"]:::mesh
+        A64["Agent 64: Physical Intake OCR"]:::mesh -->|Ingests Dropbox Scans| DB
+        DB <-->|Academic Trends| A70["Agent 70: Academic Decision Support"]:::mesh
+    end
+```
+
 ---
 
 ## Key Features
