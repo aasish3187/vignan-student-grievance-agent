@@ -83,4 +83,17 @@ router.get('/agent-runs', (req, res) => {
   }
 });
 
+// POST /api/admin/whatsapp-test — Test automated server-to-phone WhatsApp dispatch
+router.post('/whatsapp-test', (req, res) => {
+  try {
+    const { toPhone, message } = req.body;
+    const targetPhone = toPhone || req.user?.phone || '+91-9876543210';
+    const dispatchService = require('../services/dispatch.service');
+    const result = dispatchService.testDispatch(targetPhone, message);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ error: 'WHATSAPP_TEST_FAILED', message: err.message });
+  }
+});
+
 module.exports = router;

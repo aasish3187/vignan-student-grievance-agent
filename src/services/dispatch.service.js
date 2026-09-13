@@ -53,7 +53,8 @@ function dispatchTwilioWhatsApp(toPhone, bodyText) {
     const https = require('https');
     const querystring = require('querystring');
 
-    const cleanTo = toPhone.startsWith('+') ? toPhone : `+91${toPhone.replace(/\D/g, '').slice(-10)}`;
+    const cleanDigits = toPhone.replace(/\D/g, '');
+    const cleanTo = toPhone.startsWith('+') ? toPhone : (cleanDigits.length === 10 ? `+91${cleanDigits}` : `+${cleanDigits}`);
     const postData = querystring.stringify({
       To: `whatsapp:${cleanTo}`,
       From: fromWhatsApp.startsWith('whatsapp:') ? fromWhatsApp : `whatsapp:${fromWhatsApp}`,
@@ -96,6 +97,46 @@ function dispatchTwilioWhatsApp(toPhone, bodyText) {
 }
 
 /**
+ * Helper to dispatch real WhatsApp message via CallMeBot API (100% free alternative)
+ */
+function dispatchCallMeBotWhatsApp(toPhone, bodyText) {
+  const apiKey = process.env.CALLMEBOT_APIKEY;
+  if (!apiKey) return;
+
+  try {
+    const https = require('https');
+    const cleanDigits = toPhone.replace(/\D/g, '');
+    const cleanTo = toPhone.startsWith('+') ? toPhone : (cleanDigits.length === 10 ? `+91${cleanDigits}` : `+${cleanDigits}`);
+    const encodedText = encodeURIComponent(bodyText);
+    const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(cleanTo)}&text=${encodedText}&apikey=${encodeURIComponent(apiKey)}`;
+
+    https.get(url, (res) => {
+      let respBody = '';
+      res.on('data', chunk => respBody += chunk);
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          console.log(`[CALLMEBOT LIVE DISPATCH SUCCESS] WhatsApp sent to ${cleanTo}`);
+        } else {
+          console.warn(`[CALLMEBOT DISPATCH WARN] Status ${res.statusCode}: ${respBody}`);
+        }
+      });
+    }).on('error', (err) => {
+      console.warn('[CALLMEBOT ERROR]', err.message);
+    });
+  } catch (e) {
+    console.warn('[CALLMEBOT EXCEPTION]', e.message);
+  }
+}
+
+/**
+ * Universal automated background server-to-phone WhatsApp gateway
+ */
+function dispatchBackgroundWhatsApp(toPhone, bodyText) {
+  dispatchTwilioWhatsApp(toPhone, bodyText);
+  dispatchCallMeBotWhatsApp(toPhone, bodyText);
+}
+
+/**
  * Sends an intake acknowledgement via WhatsApp / SMS.
  */
 function sendIntakeNotice(data) {
@@ -117,8 +158,8 @@ function sendIntakeNotice(data) {
   // Generate direct wa.me link for immediate one-click handset delivery
   const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 
-  // Attempt automated carrier API dispatch if configured
-  dispatchTwilioWhatsApp(cleanPhone, message);
+  // Automated background server-to-phone dispatch (Twilio / CallMeBot)
+  dispatchBackgroundWhatsApp(phone, message);
 
   const record = {
     dispatchId,
@@ -155,6 +196,9 @@ function sendResolutionNotice(data) {
     `• Rate Your Satisfaction: ${url}\n\n` +
     `Your rating helps Vignan University maintain NAAC/UGC quality excellence.`;
 
+  // Automated background server-to-phone dispatch (Twilio / CallMeBot)
+  dispatchBackgroundWhatsApp(phone, message);
+
   const record = {
     dispatchId,
     grievanceNo: data.grievanceNo,
@@ -186,6 +230,9 @@ function sendEmergencySOS(data) {
     `Jurisdiction: Anti-Ragging Committee Squad & Campus Security\n\n` +
     `Summary: "${data.description ? data.description.substring(0, 120) : 'Critical statutory complaint'}"\n\n` +
     `Action Required: Chief Warden & Squad Patrol dispatched immediately under UGC Regulations.`;
+
+  // Automated background server-to-phone dispatch (Twilio / CallMeBot)
+  dispatchBackgroundWhatsApp(squadPhone, message);
 
   const record = {
     dispatchId,
@@ -234,9 +281,26 @@ function getDispatchLogs(grievanceNo = null) {
   return dispatchLogs.slice(0, 30);
 }
 
+/**
+ * Diagnostic test utility to test live background WhatsApp dispatch
+ */
+function testDispatch(toPhone, message) {
+  const testMsg = message || `Test notification from Vignan University Student Grievance Portal — Server time: ${new Date().toLocaleTimeString()}`;
+  dispatchBackgroundWhatsApp(toPhone, testMsg);
+  return {
+    success: true,
+    recipient: toPhone,
+    message: testMsg,
+    twilioConfigured: Boolean(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN),
+    callMeBotConfigured: Boolean(process.env.CALLMEBOT_APIKEY)
+  };
+}
+
 module.exports = {
   sendIntakeNotice,
   sendResolutionNotice,
   sendEmergencySOS,
-  getDispatchLogs
+  getDispatchLogs,
+  dispatchBackgroundWhatsApp,
+  testDispatch
 };
