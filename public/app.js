@@ -539,23 +539,26 @@ function showSuccess(data, info) {
   `;
 
   // Trigger on-screen realistic WhatsApp Push Notification (Stage/Judge Presentation)
-  setTimeout(() => {
-    showWhatsAppPush({
-      title: 'WHATSAPP • VIGNAN GRIEVANCE CELL',
-      sender: 'Vignan Grievance Redressal Cell',
-      message: `Dear ${info.name || 'Student'},\nYour grievance *${data.grievanceNo}* has been officially registered and assigned to *${data.routing?.description || 'Department Authority'}*.\n\n• Category: ${data.classification?.category || 'General'}\n• Expected SLA: Statutory Guidelines (48 Hours)\n• Live Tracker: Active`,
-      actionText: 'Track Case Live',
-      actionCallback: () => {
-        const trackTabBtn = document.querySelector('[data-tab="track"]');
-        if (trackTabBtn) trackTabBtn.click();
-        const input = document.getElementById('studentRegdInput');
-        if (input && info.regdNo) input.value = info.regdNo;
-        const phoneInp = document.getElementById('studentPhoneInput');
-        if (phoneInp && info.phone) phoneInp.value = info.phone;
-        showDetail(data.grievanceNo);
-      }
-    });
-  }, 850);
+  // Strictly skip external WhatsApp simulation for Anonymous Whistleblowers to maintain air-gap consistency
+  if (!info.isAnon) {
+    setTimeout(() => {
+      showWhatsAppPush({
+        title: 'WHATSAPP • VIGNAN GRIEVANCE CELL',
+        sender: 'Vignan Grievance Redressal Cell',
+        message: `Dear ${info.name || 'Student'},\nYour grievance *${data.grievanceNo}* has been officially registered and assigned to *${data.routing?.description || 'Department Authority'}*.\n\n• Category: ${data.classification?.category || 'General'}\n• Expected SLA: Statutory Guidelines (48 Hours)\n• Live Tracker: Active`,
+        actionText: 'Track Case Live',
+        actionCallback: () => {
+          const trackTabBtn = document.querySelector('[data-tab="track"]');
+          if (trackTabBtn) trackTabBtn.click();
+          const input = document.getElementById('searchRegdNo');
+          if (input && info.regdNo) input.value = info.regdNo;
+          const phoneInp = document.getElementById('searchPhone');
+          if (phoneInp && info.phone) phoneInp.value = info.phone;
+          showDetail(data.grievanceNo);
+        }
+      });
+    }, 850);
+  }
 }
 
 // =====================================================================
@@ -1267,7 +1270,7 @@ function renderDetailModalWithData(g) {
 
   modal.style.display = 'flex';
 
-  if (isFeedbackPending) {
+  if (isFeedbackPending && !g.is_anonymous) {
     setTimeout(() => {
       const card = document.getElementById('studentRatingCard');
       if (card) {
