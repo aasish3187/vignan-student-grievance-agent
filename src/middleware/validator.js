@@ -34,11 +34,27 @@ function validateGrievanceSubmission(req, res, next) {
   const errors = [];
 
   if (!description || description.trim().length < 20) {
-    errors.push('Description must be at least 20 characters long');
+    errors.push('Description must be at least 20 characters long to provide sufficient factual context');
   }
 
-  if (description && description.trim().length > 5000) {
-    errors.push('Description must be under 5000 characters');
+  if (description) {
+    const cleanDesc = description.trim();
+    if (cleanDesc.length > 5000) {
+      errors.push('Description must be under 5000 characters');
+    }
+
+    // Factual Sufficiency & Anti-Gibberish Triage:
+    // Detect single-character spam (e.g., 'aaaaaaaaaaaaaaaaaaaaa') or keyboard mash without spaces
+    const words = cleanDesc.split(/\s+/).filter(w => w.length > 1);
+    if (words.length < 4) {
+      errors.push('Factual Sufficiency Filter: Please provide a descriptive sentence (at least 4 words) describing the incident, department, or issue.');
+    }
+
+    // Check for repetitive character spam (e.g. "asdfasdfasdfasdf", "xxxxxxxxx")
+    const hasExcessiveRepetition = /(.)\1{6,}/i.test(cleanDesc);
+    if (hasExcessiveRepetition) {
+      errors.push('Quality Pre-Screening: Gibberish or excessive character repetition detected. Please provide authentic grievance details.');
+    }
   }
 
   if (category && !VALID_CATEGORIES.includes(category.toUpperCase())) {

@@ -45,16 +45,16 @@ const trackingLimiter = rateLimit({
   }
 });
 
-// 4. Rate limiter for public grievance intake
+// 4. Rate limiter for public grievance intake (Max 5 submissions per 15 min per network)
 const intakeLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes window
-  max: 15, // Limit each IP to 15 grievance submissions per window
+  max: 5, // Limit each IP to 5 grievance submissions per window
   standardHeaders: true,
   legacyHeaders: false,
   message: {
     success: false,
     error: 'RATE_LIMIT_EXCEEDED',
-    message: 'Too many grievance submissions from this network. To prevent system abuse, please wait 15 minutes before submitting another case.'
+    message: 'Rate limit exceeded: Maximum 5 grievance submissions allowed per 15 minutes from this network to prevent flood attacks and pranks.'
   }
 });
 

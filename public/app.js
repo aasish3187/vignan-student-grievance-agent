@@ -468,7 +468,19 @@ function showSuccess(data, info) {
   const isStatutory = data.classification?.isStatutoryRoute;
 
   let intakeSummaryHtml = '';
-  if (data.anonymousPin) {
+  if (data.isDuplicateMerged) {
+    intakeSummaryHtml = `
+      <div class="duplicate-merged-box" style="background:#f0fdf4; border:1.5px solid #86efac; border-radius:8px; padding:14px; margin-bottom:14px;">
+        <div style="display:flex; align-items:center; gap:8px; color:#15803d; font-weight:700; font-size:13px; margin-bottom:4px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="16 12 12 8 8 12"></polyline><line x1="12" y1="16" x2="12" y2="8"></line></svg>
+          <span>CONSOLIDATED INTO ACTIVE DOCKET: ${data.grievanceNo}</span>
+        </div>
+        <p style="font-size:12px; color:#166534; line-height:1.5; margin:0;">
+          ${escapeHtml(data.message)}
+        </p>
+      </div>
+    `;
+  } else if (data.anonymousPin) {
     intakeSummaryHtml = `
       <div class="secret-pin-box">
         <div class="secret-pin-badge">

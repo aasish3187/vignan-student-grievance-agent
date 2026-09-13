@@ -45,6 +45,65 @@ function submitGrievance(data) {
   // Step 2: Classify
   const classification = classify(textForClassifier, processedData.category);
 
+  // Step 2.5: Automated Semantic Duplicate Detection & Merging (Prevents Spam Flooding)
+  const studentRegd = (processedData.complainant_regd_no || '').trim().toUpperCase();
+  const studentPhone = (processedData.complainant_phone || '').trim();
+
+  if (studentRegd || studentPhone) {
+    const recentDuplicate = db.prepare(`
+      SELECT grievance_id, grievance_no, description, status, submitted_at
+      FROM grievances
+      WHERE (
+        (complainant_regd_no = ? AND complainant_regd_no IS NOT NULL AND complainant_regd_no != '')
+        OR (complainant_phone = ? AND complainant_phone IS NOT NULL AND complainant_phone != '')
+      )
+      AND category = ?
+      AND status IN ('RECEIVED', 'ASSIGNED', 'IN_PROGRESS')
+      AND datetime(submitted_at) >= datetime('now', '-48 hours')
+      ORDER BY submitted_at DESC
+      LIMIT 1
+    `).get(studentRegd, studentPhone, classification.category);
+
+    if (recentDuplicate) {
+      // Calculate lexical/token similarity between new description and existing grievance
+      const newTokens = new Set(processedData.description.toLowerCase().match(/\b\w{3,}\b/g) || []);
+      const oldTokens = new Set((recentDuplicate.description || '').toLowerCase().match(/\b\w{3,}\b/g) || []);
+      let matchCount = 0;
+      for (const t of newTokens) {
+        if (oldTokens.has(t)) matchCount++;
+      }
+      const similarity = newTokens.size > 0 ? (matchCount / newTokens.size) : 0;
+
+      // If token overlap > 40% or exact category re-submission within 48h
+      if (similarity >= 0.35 || matchCount >= 4) {
+        const updateNote = `[SUPPLEMENTAL CITIZEN UPDATE - ${new Date().toLocaleTimeString()}]: "${processedData.description}"` + (processedData.attachment_name ? ` [Evidence Added: ${processedData.attachment_name}]` : '');
+        
+        // Append update to existing grievance problem statement
+        db.prepare(`
+          UPDATE grievances 
+          SET description = description || '\n\n' || ?
+          WHERE grievance_id = ?
+        `).run(updateNote, recentDuplicate.grievance_id);
+
+        // Record audit event
+        addEvent(db, recentDuplicate.grievance_id, 'REMARKS_ADDED', null, 'STUDENT',
+          `Automated Duplicate Prevention Engine: Repeated submission within 48h merged into active docket. Additional notes: "${processedData.description.substring(0, 80)}..."`);
+
+        console.log(`[DUPLICATE MERGE] Repetitive grievance merged into active case ${recentDuplicate.grievance_no}`);
+
+        return {
+          isDuplicateMerged: true,
+          grievanceId: recentDuplicate.grievance_id,
+          grievanceNo: recentDuplicate.grievance_no,
+          status: recentDuplicate.status,
+          message: `Notice: You already have an active grievance [${recentDuplicate.grievance_no}] under official investigation for ${classification.category}. To prevent administrative duplication, your additional details have been merged into your active case docket.`,
+          classification,
+          routing: route(classification, processedData.department_id)
+        };
+      }
+    }
+  }
+
   // Step 3: Route
   const routing = route(classification, processedData.department_id);
 
