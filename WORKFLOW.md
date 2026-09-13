@@ -6,7 +6,7 @@ Comprehensive architectural specification and process flow for **Agent 46 (Stude
 
 ## Visual Architecture Overview
 
-![Agent 46: System Architecture & Workflow](public/assets/images/workflow-diagram.png)
+![Agent 46: System Architecture & Workflow](docs/screenshots/workflow_architecture.png)
 
 ---
 
