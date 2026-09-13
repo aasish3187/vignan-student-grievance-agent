@@ -65,6 +65,12 @@ function submitGrievance(data) {
     commId = comm ? comm.committee_id : null;
   }
 
+  let studentId = processedData.student_id || null;
+  if (studentId) {
+    const validStudent = db.prepare('SELECT user_id FROM users WHERE user_id = ?').get(studentId);
+    studentId = validStudent ? validStudent.user_id : null;
+  }
+
   const isAnonymous = Boolean(processedData.is_anonymous);
   const complainantName = isAnonymous ? null : ((processedData.complainant_name || '').trim() || null);
   const complainantRegdNo = isAnonymous ? null : ((processedData.complainant_regd_no || '').trim().toUpperCase() || null);
@@ -494,12 +500,22 @@ function rateSatisfaction(idOrNo, ratingOrPayload, commentArg, actorUserIdArg) {
 // --- Helpers ---
 
 function addEvent(db, grievanceId, eventType, actorUserId, actorRole, notes, metadata) {
+  let validActorId = null;
+  if (actorUserId) {
+    try {
+      const user = db.prepare('SELECT user_id FROM users WHERE user_id = ? OR username = ?').get(actorUserId, actorUserId);
+      if (user) {
+        validActorId = user.user_id;
+      }
+    } catch (e) {}
+  }
+
   db.prepare(`
     INSERT INTO grievance_events (grievance_event_id, grievance_id, occurred_at, event_type, actor_user_id, actor_role, notes, metadata)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     uuidv4(), grievanceId, new Date().toISOString(),
-    eventType, actorUserId || null, actorRole || null,
+    eventType, validActorId, actorRole || (actorUserId ? String(actorUserId) : null),
     notes || null, metadata ? JSON.stringify(metadata) : null
   );
 }

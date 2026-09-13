@@ -148,8 +148,9 @@ router.put('/:id/resolve',
 // PUT /api/grievances/:id/appeal
 router.put('/:id/appeal', (req, res) => {
   try {
+    const actorId = (req.user && !req.user.isGuest && req.user.id !== 'guest-student') ? req.user.id : null;
     const result = grievanceService.appealGrievance(
-      req.params.id, req.body.reason, req.user?.id
+      req.params.id, req.body.reason, actorId
     );
     res.json({ success: true, data: result });
   } catch (err) {
@@ -162,8 +163,9 @@ router.put('/:id/satisfaction',
   validateSatisfaction,
   (req, res) => {
     try {
+      const actorId = (req.user && !req.user.isGuest && req.user.id !== 'guest-student') ? req.user.id : null;
       const result = grievanceService.rateSatisfaction(
-        req.params.id, req.body.rating, req.body.comment, req.user?.id
+        req.params.id, req.body.rating, req.body.comment, actorId
       );
       res.json({ success: true, data: result });
     } catch (err) {
