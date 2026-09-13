@@ -35,6 +35,9 @@ const { seed } = require('./src/seed/seed-data');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Enable reverse proxy support (Render/Cloudflare) to accurately read client IP for rate limiting
+app.set('trust proxy', 1);
+
 // Security Hardening: Disable Express fingerprinting
 app.disable('x-powered-by');
 
