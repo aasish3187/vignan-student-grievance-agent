@@ -15,7 +15,7 @@ const { getDb } = require('../config/database');
  */
 function buildScopeClause(user, tableAlias = '') {
   const prefix = tableAlias ? `${tableAlias}.` : '';
-  if (!user || user.role === 'ADMIN') {
+  if (!user || user.role === 'ADMIN' || user.isGuest || user.id === 'guest-student' || !user.id) {
     return { clause: '', params: [] };
   }
 
@@ -62,8 +62,8 @@ function buildScopeClause(user, tableAlias = '') {
     };
   }
 
-  // 7. Verified Students (Personal Grievance Scope Only)
-  if (role === 'STUDENT' && user.id) {
+  // 7. Verified Individual Students (Personal Grievance Scope Only)
+  if (role === 'STUDENT' && user.id && !user.isGuest && user.id !== 'guest-student') {
     return {
       clause: ` AND ${prefix}student_id = ?`,
       params: [user.id]

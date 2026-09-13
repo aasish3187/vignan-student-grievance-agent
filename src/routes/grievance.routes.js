@@ -58,11 +58,12 @@ router.post('/',
 // GET /api/grievances — List grievances (role-filtered for authorities)
 router.get('/', (req, res) => {
   try {
+    const isVerifiedIndividualStudent = req.user?.role === 'STUDENT' && !req.user?.isGuest && req.user?.id !== 'guest-student';
     const filters = {
       status: req.query.status,
       category: req.query.category,
       department_id: req.query.department_id,
-      student_id: req.user?.role === 'STUDENT' ? req.user.id : req.query.student_id,
+      student_id: isVerifiedIndividualStudent ? req.user.id : req.query.student_id,
       is_statutory_route: req.query.statutory === 'true' ? true : undefined,
       limit: parseInt(req.query.limit) || 100
     };
