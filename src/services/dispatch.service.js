@@ -129,9 +129,71 @@ function dispatchCallMeBotWhatsApp(toPhone, bodyText) {
 }
 
 /**
+ * Helper to dispatch real WhatsApp message via Meta Official Cloud API (Graph API)
+ * Requires META_WHATSAPP_TOKEN & META_PHONE_NUMBER_ID
+ */
+function dispatchMetaWhatsApp(toPhone, bodyText) {
+  const token = process.env.META_WHATSAPP_TOKEN || process.env.WHATSAPP_API_TOKEN;
+  const phoneId = process.env.META_PHONE_NUMBER_ID || process.env.WHATSAPP_PHONE_ID;
+
+  if (!token || !phoneId) return;
+
+  try {
+    const https = require('https');
+    const cleanDigits = toPhone.replace(/\D/g, '');
+    const cleanTo = cleanDigits.length === 10 ? `91${cleanDigits}` : cleanDigits;
+
+    const payload = JSON.stringify({
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+      to: cleanTo,
+      type: 'text',
+      text: {
+        preview_url: true,
+        body: bodyText
+      }
+    });
+
+    const options = {
+      hostname: 'graph.facebook.com',
+      port: 443,
+      path: `/v20.0/${phoneId}/messages`,
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payload)
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let respBody = '';
+      res.on('data', chunk => respBody += chunk);
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          console.log(`[META OFFICIAL CLOUD API SUCCESS] WhatsApp delivered directly to +${cleanTo}`);
+        } else {
+          console.warn(`[META CLOUD API DISPATCH WARN] Status ${res.statusCode}: ${respBody}`);
+        }
+      });
+    });
+
+    req.on('error', (err) => {
+      console.warn('[META CLOUD API ERROR]', err.message);
+    });
+
+    req.write(payload);
+    req.end();
+  } catch (e) {
+    console.warn('[META CLOUD API EXCEPTION]', e.message);
+  }
+}
+
+/**
  * Universal automated background server-to-phone WhatsApp gateway
  */
 function dispatchBackgroundWhatsApp(toPhone, bodyText) {
+  dispatchMetaWhatsApp(toPhone, bodyText);
   dispatchTwilioWhatsApp(toPhone, bodyText);
   dispatchCallMeBotWhatsApp(toPhone, bodyText);
 }
