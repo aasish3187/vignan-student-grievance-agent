@@ -40,7 +40,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Layer 1 & 2 Security: Input Validation, Anti-Spam Rate Limiter & Honeypot Trap\nconst input = $json.body || $json;\n\n// 1. Mandatory Input Validation\nif (!input.description || !input.category) {\n  return [{\n    json: {\n      error: true,\n      errorCode: 'VALIDATION_ERROR',\n      message: 'Description and category are mandatory under UGC 2023 submission regulations.'\n    }\n  }];\n}\n\n// 2. Honeypot Bot Trap\nif (input.website || input.honeypot) {\n  return [{\n    json: {\n      blocked: true,\n      reason: 'Automated bot deflection triggered',\n      statusCode: 400\n    }\n  }];\n}\n\n// 3. Dual-Track Zero-Knowledge Sanitizer\nconst isAnonymous = input.isAnonymous === true || input.isAnonymous === 'true';\nlet pin = null;\nlet studentName = input.studentName || '';\nlet regNumber = input.regNumber || '';\nlet phone = input.phone || '';\n\nif (isAnonymous) {\n  studentName = 'CONFIDENTIAL_WHISTLEBLOWER';\n  regNumber = 'ANON-REDACTED';\n  phone = 'MASKED';\n  pin = Math.floor(100000 + Math.random() * 900000).toString();\n}\n\nconst trackingId = 'GRV-' + new Date().getFullYear() + '-' + Math.floor(10000 + Math.random() * 90000);\n\nreturn [{\n  json: {\n    trackingId,\n    studentName,\n    regNumber,\n    phone,\n    isAnonymous,\n    secretPin: pin,\n    category: input.category || 'General',\n    subject: input.subject || 'Student Grievance',\n    description: input.description || '',\n    department: input.department || 'CSE',\n    submittedAt: new Date().toISOString()\n  }\n}];"
+        "jsCode": "// Layer 1 & 2 Security: Anti-Spam Rate Limiter & Honeypot Trap\nconst input = $json.body || $json;\n\n// Check Honeypot Trap (invisible field for bots)\nif (input.website || input.honeypot) {\n  return [{\n    json: {\n      blocked: true,\n      reason: \"Automated bot deflection triggered\",\n      statusCode: 400\n    }\n  }];\n}\n\n// Check Anonymous vs Verified Track\nconst isAnonymous = input.isAnonymous === true || input.isAnonymous === 'true';\nlet pin = null;\nlet studentName = input.studentName || '';\nlet regNumber = input.regNumber || '';\nlet phone = input.phone || '';\n\nif (isAnonymous) {\n  studentName = 'CONFIDENTIAL_WHISTLEBLOWER';\n  regNumber = 'ANON-REDACTED';\n  phone = 'MASKED';\n  // Generate Cryptographic 6-Digit PIN\n  pin = Math.floor(100000 + Math.random() * 900000).toString();\n}\n\nconst trackingId = 'GRV-' + new Date().getFullYear() + '-' + Math.floor(10000 + Math.random() * 90000);\n\nreturn [{\n  json: {\n    trackingId,\n    studentName,\n    regNumber,\n    phone,\n    isAnonymous,\n    secretPin: pin,\n    category: input.category || 'General',\n    subject: input.subject || 'Student Grievance',\n    description: input.description || '',\n    department: input.department || 'CSE',\n    submittedAt: new Date().toISOString()\n  }\n}];"
       },
       "id": "node-guardrail-sanitizer",
       "name": "2. Anti-Spam & Zero-Knowledge PII Sanitizer",
@@ -54,7 +54,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=You are Agent 46, the autonomous AI Student Grievance Redressal and Policy Officer for Vignan's Foundation for Science, Technology & Research (VFSTR).\n\nEvaluate the complainant's submission:\nCategory: {{ $json.category }}\nSubject: {{ $json.subject }}\nDescription: {{ $json.description }}\nDepartment: {{ $json.department }}\nIs Anonymous: {{ $json.isAnonymous }}\n\nRules & Statutory Directives:\n1. Under UGC Regulations 2023 and AICTE Anti-Ragging Directives, any mention of physical intimidation, ragging, assault, or hostel bullying MUST be assigned 'CRITICAL' severity and routed strictly to 'Anti-Ragging Committee Chair' (HoD BYPASS MANDATORY).\n2. Any mention of sexual harassment or gender inequity MUST be routed to 'Internal Complaints Committee (ICC) Chair' with 'CRITICAL' priority under POSH Act 2013.\n3. Departmental academic disputes (CIE marks, attendance errors, faculty conflicts) route to 'HoD [Department]' with 'HIGH' or 'MEDIUM' severity.\n4. Campus facilities, canteen, transport, or hostel maintenance route to 'Dean of Student Affairs'.\n\nPerform duplicate detection, verify UGC SLAs, check historical disciplinary precedents, and output structured routing JSON.",
+        "text": "=You are Agent 46, the autonomous AI Student Grievance Redressal and Policy Officer for Vignan's Foundation for Science, Technology & Research (VFSTR).\n\nEvaluate the complainant's submission:\nCategory: {{ $json.category }}\nSubject: {{ $json.subject }}\nDescription: {{ $json.description }}\nDepartment: {{ $json.department }}\nIs Anonymous: {{ $json.isAnonymous }}\n\nRules & Statutory Directives:\n1. Under UGC Regulations 2023 and AICTE Anti-Ragging Directives, any mention of physical intimidation, ragging, assault, or hostel bullying MUST be assigned 'CRITICAL' severity and routed strictly to 'Anti-Ragging Committee Chair' (HoD BYPASS MANDATORY).\n2. Any mention of sexual harassment or gender inequity MUST be routed to 'Internal Complaints Committee (ICC) Chair' with 'CRITICAL' priority under POSH Act 2013.\n3. Departmental academic disputes (CIE marks, attendance errors, faculty conflicts) route to 'HoD [Department]' with 'HIGH' or 'MEDIUM' severity.\n4. Campus facilities, canteen, transport, or hostel maintenance route to 'Dean of Student Affairs'.\n\nPerform duplicate detection, verify UGC SLAs, and output structured routing JSON.",
         "options": {
           "systemMessage": "You are a statutory institutional grievance classifier adhering strictly to UGC (Redressal of Grievances of Students) Regulations 2023, AICTE Anti-Ragging regulations, and POSH Act 2013."
         }
@@ -82,13 +82,7 @@
       "position": [
         720,
         520
-      ],
-      "credentials": {
-        "googlePalmApi": {
-          "id": "vignan-gemini-credentials",
-          "name": "Google Gemini API"
-        }
-      }
+      ]
     },
     {
       "parameters": {
@@ -106,8 +100,8 @@
     {
       "parameters": {
         "name": "ugc_policy_sla_retriever",
-        "description": "Retrieves official UGC 2023 and Vignan University grievance resolution SLAs, escalation limits, and 15-day appellate windows.",
-        "jsCode": "// Dynamic Query against UGC 2023 Regulations & Vignan University Academic Grievance Policy\nreturn JSON.stringify({\n  regulatoryBody: 'University Grants Commission (UGC)',\n  statutoryFramework: 'Redressal of Grievances of Students Regulations 2023',\n  slaHours: {\n    'CRITICAL': 24,\n    'HIGH': 72,\n    'MEDIUM': 120,\n    'LOW': 240\n  },\n  appellateWindowDays: 15,\n  ombudspersonEscalationAllowed: true,\n  raggingDirectBypassMandatory: true,\n  poshConfidentialityMandatory: true\n});"
+        "description": "Retrieves official UGC 2023 and Vignan University grievance SLAs and escalation rules.",
+        "jsCode": "return JSON.stringify({\n  slaHours: {\n    'CRITICAL': 24,\n    'HIGH': 72,\n    'MEDIUM': 120,\n    'LOW': 240\n  },\n  appellateWindowDays: 15,\n  ombudspersonEscalationAllowed: true\n});"
       },
       "id": "node-tool-ugc-sla",
       "name": "Tool: UGC Policy & SLA Knowledge",
@@ -121,8 +115,8 @@
     {
       "parameters": {
         "name": "precedent_ruling_matcher",
-        "description": "Searches historical university rulings to find disciplinary benchmarks, recommended remedial actions, and past committee orders.",
-        "jsCode": "// Semantic retrieval from Vignan University Grievance Archives (2024-2026)\nreturn JSON.stringify({\n  matchFound: true,\n  precedentCase: 'GRV-2025-0842',\n  category: 'Evaluation Dispute',\n  ruling: 'Independent re-evaluation of continuous internal evaluation scripts conducted; attendance updated under medical leave clause.',\n  disciplinaryBenchmark: 'Faculty counseling and mandatory transparent grading key publication.',\n  consistencyScore: 0.94\n});"
+        "description": "Searches historical university rulings to find disciplinary benchmarks and recommended remedial actions.",
+        "jsCode": "return JSON.stringify({\n  matchFound: true,\n  precedentCase: 'GRV-2025-0842',\n  ruling: 'Re-evaluation of scripts conducted by external board; attendance updated under medical leave clause.',\n  consistencyScore: 0.94\n});"
       },
       "id": "node-tool-precedents",
       "name": "Tool: Historical Precedent Matcher",
@@ -215,13 +209,7 @@
       "position": [
         1400,
         140
-      ],
-      "credentials": {
-        "postgres": {
-          "id": "vignan-supabase-postgres",
-          "name": "Vignan Supabase PostgreSQL"
-        }
-      }
+      ]
     },
     {
       "parameters": {
@@ -235,13 +223,7 @@
       "position": [
         1400,
         280
-      ],
-      "credentials": {
-        "postgres": {
-          "id": "vignan-supabase-postgres",
-          "name": "Vignan Supabase PostgreSQL"
-        }
-      }
+      ]
     },
     {
       "parameters": {
@@ -255,13 +237,7 @@
       "position": [
         1400,
         420
-      ],
-      "credentials": {
-        "postgres": {
-          "id": "vignan-supabase-postgres",
-          "name": "Vignan Supabase PostgreSQL"
-        }
-      }
+      ]
     },
     {
       "parameters": {
@@ -275,13 +251,7 @@
       "position": [
         1400,
         560
-      ],
-      "credentials": {
-        "postgres": {
-          "id": "vignan-supabase-postgres",
-          "name": "Vignan Supabase PostgreSQL"
-        }
-      }
+      ]
     },
     {
       "parameters": {
@@ -301,7 +271,7 @@
             },
             {
               "name": "Body",
-              "value": "=🏛️ *VFSTR Student Grievance Redressal Cell*\n\nDear Student,\nYour grievance has been formally registered under UGC 2023 regulations.\n\n📋 *Case ID:* {{ $('2. Anti-Spam & Zero-Knowledge PII Sanitizer').item.json.trackingId }}\n📂 *Category:* {{ $('2. Anti-Spam & Zero-Knowledge PII Sanitizer').item.json.category }}\n⏳ *Status:* ASSIGNED TO STATUTORY AUTHORITY\n\n🔍 *Live Tracking Portal:*\nhttps://vignan-student-grievance-agent.onrender.com/?track={{ $('2. Anti-Spam & Zero-Knowledge PII Sanitizer').item.json.trackingId }}"
+              "value": "=🏛️ *VFSTR Student Grievance Redressal Cell*\n\nDear Student,\nYour grievance has been formally registered.\n\n📋 *Case ID:* {{ $('2. Anti-Spam & Zero-Knowledge PII Sanitizer').item.json.trackingId }}\n📂 *Category:* {{ $('2. Anti-Spam & Zero-Knowledge PII Sanitizer').item.json.category }}\n⏳ *Status:* ASSIGNED TO STATUTORY AUTHORITY\n\n🔍 *Live Tracking Portal:*\nhttps://vignan-student-grievance-agent.onrender.com/?track={{ $('2. Anti-Spam & Zero-Knowledge PII Sanitizer').item.json.trackingId }}"
             }
           ]
         },
@@ -314,13 +284,7 @@
       "position": [
         1700,
         350
-      ],
-      "credentials": {
-        "twilioApi": {
-          "id": "vignan-twilio-credentials",
-          "name": "Vignan Twilio Credentials"
-        }
-      }
+      ]
     },
     {
       "parameters": {
@@ -362,13 +326,7 @@
       "position": [
         480,
         640
-      ],
-      "credentials": {
-        "postgres": {
-          "id": "vignan-supabase-postgres",
-          "name": "Vignan Supabase PostgreSQL"
-        }
-      }
+      ]
     },
     {
       "parameters": {
@@ -382,13 +340,7 @@
       "position": [
         780,
         640
-      ],
-      "credentials": {
-        "postgres": {
-          "id": "vignan-supabase-postgres",
-          "name": "Vignan Supabase PostgreSQL"
-        }
-      }
+      ]
     },
     {
       "parameters": {
@@ -622,5 +574,5 @@
     "instanceId": "vignan-hackathon-2026-agent46"
   },
   "pinData": {},
-  "versionId": "agent46-vignan-2026-v3"
+  "versionId": "agent46-vignan-2026-v1"
 }
