@@ -539,6 +539,137 @@ function showSuccess(data, info) {
       <span class="value" style="color:#d62828;">Direct committee route — Anti-Ragging / ICC Emergency SOS Dispatched</span>
     </div>` : ''}
   `;
+
+  // Trigger on-screen realistic WhatsApp Push Notification (Stage/Judge Presentation)
+  setTimeout(() => {
+    showWhatsAppPush({
+      title: 'WHATSAPP • VIGNAN GRIEVANCE CELL',
+      sender: 'Vignan Grievance Redressal Cell',
+      message: `Dear ${info.name || 'Student'},\nYour grievance *${data.grievanceNo}* has been officially registered and assigned to *${data.routing?.description || 'Department Authority'}*.\n\n• Category: ${data.classification?.category || 'General'}\n• Expected SLA: Statutory Guidelines (48 Hours)\n• Live Tracker: Active`,
+      actionText: 'Track Case Live',
+      actionCallback: () => {
+        const trackTabBtn = document.querySelector('[data-tab="track"]');
+        if (trackTabBtn) trackTabBtn.click();
+        const input = document.getElementById('studentRegdInput');
+        if (input && info.regdNo) input.value = info.regdNo;
+        const phoneInp = document.getElementById('studentPhoneInput');
+        if (phoneInp && info.phone) phoneInp.value = info.phone;
+        showDetail(data.grievanceNo);
+      }
+    });
+  }, 850);
+}
+
+// =====================================================================
+// LIVE UNIVERSITY WHATSAPP DISPATCH PUSH NOTIFICATION ENGINE
+// =====================================================================
+function playWhatsAppChime() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+    const osc1 = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(587.33, now); // D5
+    osc1.frequency.setValueAtTime(880, now + 0.08); // A5
+
+    gain.gain.setValueAtTime(0.12, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+    osc1.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc1.start(now);
+    osc1.stop(now + 0.38);
+  } catch (e) {}
+}
+
+function showWhatsAppPush({ title, sender, message, actionText, actionCallback, timeout = 9500 }) {
+  const container = document.getElementById('whatsappPushContainer');
+  if (!container) return;
+
+  playWhatsAppChime();
+
+  const card = document.createElement('div');
+  card.className = 'whatsapp-push-card';
+  card.setAttribute('role', 'alert');
+
+  card.innerHTML = `
+    <div class="whatsapp-push-topbar">
+      <div class="whatsapp-push-brand">
+        <div class="whatsapp-push-icon" aria-hidden="true">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.81 13.47 3.81 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>
+        </div>
+        <div class="whatsapp-push-title-wrap">
+          <span class="whatsapp-push-app">WHATSAPP</span>
+          <span class="whatsapp-push-dot">•</span>
+          <span class="whatsapp-push-sender">${escapeHtml(sender || 'Vignan Grievance Cell')}</span>
+          <span class="whatsapp-verified-badge" title="Verified University Official Channel">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#25D366"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          </span>
+        </div>
+      </div>
+      <div class="whatsapp-push-meta">
+        <span class="whatsapp-push-time">Just now</span>
+        <button type="button" class="whatsapp-push-close" title="Dismiss notification" aria-label="Dismiss">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+    <div class="whatsapp-push-body">${formatWhatsAppPushText(message)}</div>
+    ${actionText ? `
+      <div class="whatsapp-push-actions">
+        <button type="button" class="btn-push-action" id="btnPushAction">
+          <span>${escapeHtml(actionText)}</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+        <button type="button" class="btn-push-dismiss" id="btnPushDismiss">Dismiss</button>
+      </div>
+    ` : ''}
+  `;
+
+  // Clear existing notifications
+  container.innerHTML = '';
+  container.appendChild(card);
+
+  const dismiss = () => {
+    card.classList.add('dismissing');
+    setTimeout(() => {
+      if (card.parentElement) card.parentElement.removeChild(card);
+    }, 280);
+  };
+
+  const closeBtn = card.querySelector('.whatsapp-push-close');
+  if (closeBtn) closeBtn.addEventListener('click', dismiss);
+
+  const dismissBtn = card.querySelector('#btnPushDismiss');
+  if (dismissBtn) dismissBtn.addEventListener('click', dismiss);
+
+  const actionBtn = card.querySelector('#btnPushAction');
+  if (actionBtn && actionCallback) {
+    actionBtn.addEventListener('click', () => {
+      dismiss();
+      actionCallback();
+    });
+  }
+
+  let autoDismiss = setTimeout(dismiss, timeout);
+
+  card.addEventListener('mouseenter', () => clearTimeout(autoDismiss));
+  card.addEventListener('mouseleave', () => {
+    autoDismiss = setTimeout(dismiss, 3500);
+  });
+}
+window.showWhatsAppPush = showWhatsAppPush;
+
+function formatWhatsAppPushText(txt) {
+  if (!txt) return '';
+  return txt
+    .replace(/\*([^\*]+)\*/g, '<strong>$1</strong>')
+    .replace(/\_([^\_]+)\_/g, '<em>$1</em>');
 }
 
 function resetForm() {
@@ -1111,7 +1242,13 @@ function renderDetailModalWithData(g) {
 
     ${renderResolutionAndFeedbackSection(g)}
 
-    <h4 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin-bottom:12px;">Event Timeline</h4>
+    <h4 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin:16px 0 10px 0;display:flex;align-items:center;gap:8px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.81 13.47 3.81 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>
+      <span>Official WhatsApp Notification Transcript</span>
+    </h4>
+    ${renderWhatsAppTranscript(g, false)}
+
+    <h4 style="font-size:15px;font-weight:700;color:var(--primary-dark);margin:18px 0 12px 0;">Event Timeline</h4>
     <div class="timeline">
       ${(g.events || []).map(evt => {
         let evtClass = 'timeline-event';
@@ -1138,7 +1275,16 @@ function renderDetailModalWithData(g) {
       if (card) {
         card.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
-    }, 250);
+      showWhatsAppPush({
+        title: 'WHATSAPP • VIGNAN REDRESSAL ORDER',
+        sender: 'Vignan University Redressal Order (Official ✓)',
+        message: `Dear ${studentName || 'Student'},\nYour grievance *${g.grievance_no}* has been formally RESOLVED.\n\nOfficial Findings: "${(g.resolution || 'Grievance officially resolved by university authority').slice(0, 110)}${(g.resolution && g.resolution.length > 110) ? '...' : ''}"\n\nPlease rate your satisfaction and submit feedback: [⭐ Rate & Give Suggestions]`,
+        actionText: '⭐ Rate & Give Suggestions',
+        actionCallback: () => {
+          scrollToRatingCard();
+        }
+      });
+    }, 650);
   }
 }
 
@@ -1249,6 +1395,186 @@ function renderStarsSvgDisplay(rating) {
   }
   return html;
 }
+
+// =====================================================================
+// OFFICIAL WHATSAPP CHAT TRANSCRIPT GENERATOR
+// =====================================================================
+function scrollToRatingCard() {
+  const card = document.getElementById('studentRatingCard');
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card.classList.add('highlight-pulse');
+    setTimeout(() => card.classList.remove('highlight-pulse'), 2500);
+    const starBtn = card.querySelector('.rating-star-btn');
+    if (starBtn) starBtn.focus();
+  }
+}
+window.scrollToRatingCard = scrollToRatingCard;
+
+function scrollToDetailTimeline() {
+  const timeline = document.querySelector('.timeline');
+  if (timeline) {
+    timeline.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+window.scrollToDetailTimeline = scrollToDetailTimeline;
+
+function renderWhatsAppTranscript(g, isAdmin = false) {
+  if (!g) return '';
+  const studentName = g.complainant_name || g.student_name || 'Student';
+  const grievanceNo = g.grievance_no || 'GRV-2026';
+  const roleName = typeof formatAuthorityName === 'function' ? formatAuthorityName(g.assigned_to_role) : (g.assigned_to_role || 'Department Authority');
+  const catName = typeof formatCategoryName === 'function' ? formatCategoryName(g.category) : (g.category || 'General');
+
+  const submittedDate = g.submitted_at ? new Date(g.submitted_at) : new Date();
+  const timeStr1 = submittedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const dateStr = submittedDate.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+
+  const isResolved = g.status === 'RESOLVED' || g.status === 'CLOSED' || Boolean(g.resolution);
+  const resolvedDate = g.resolved_at ? new Date(g.resolved_at) : new Date();
+  const timeStr2 = resolvedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const hasRating = Boolean(g.satisfaction_rating);
+
+  const doubleTicksSvg = `
+    <span class="whatsapp-ticks" title="Delivered and Read">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.41 11.93l-1.41 1.41 5.66 5.66 12-12-1.42-1.41zM.41 13.34l5.66 5.66 1.41-1.41-5.66-5.66-1.41 1.41z"/>
+      </svg>
+    </span>
+  `;
+
+  let messagesHtml = '';
+
+  // Message 1: Intake Notification Bubble
+  messagesHtml += `
+    <div class="whatsapp-bubble sent">
+      <div class="whatsapp-bubble-sender">
+        <span>Vignan Grievance Cell (Official ✓)</span>
+      </div>
+      <div class="whatsapp-bubble-text">Dear <strong>${escapeHtml(studentName)}</strong>, your grievance [<strong>${escapeHtml(grievanceNo)}</strong>] has been officially registered and assigned to <strong>${escapeHtml(roleName)}</strong>.
+
+• Category: ${catName}
+• Expected Resolution: 48h (Statutory SLA)
+• Track live: <span style="text-decoration:underline;color:#0369a1;">https://vignan-portal.edu/track?ref=${escapeHtml(grievanceNo)}</span></div>
+      ${!isAdmin ? `
+        <button type="button" class="whatsapp-bubble-action-btn" onclick="scrollToDetailTimeline()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          <span>Track Live Progress</span>
+        </button>
+      ` : ''}
+      <div class="whatsapp-bubble-footer">
+        <span>${timeStr1}</span>
+        ${doubleTicksSvg}
+      </div>
+    </div>
+  `;
+
+  // Message 2: If Statutory / Emergency Route
+  if (g.is_statutory_route || g.category === 'ANTI_RAGGING') {
+    messagesHtml += `
+      <div class="whatsapp-bubble sent" style="border-left: 3.5px solid #d62828;">
+        <div class="whatsapp-bubble-sender" style="color: #d62828;">
+          <span>Vignan Anti-Ragging &amp; ICC Emergency SOS</span>
+        </div>
+        <div class="whatsapp-bubble-text"><strong>EMERGENCY STATUTORY DISPATCH:</strong>
+This grievance has triggered statutory Anti-Ragging &amp; Proctorial safety protocols. Rapid Action Safety Squad has been alerted for on-campus verification.</div>
+        <div class="whatsapp-bubble-footer">
+          <span>${timeStr1}</span>
+          ${doubleTicksSvg}
+        </div>
+      </div>
+    `;
+  }
+
+  // Message 3: When Case is Resolved
+  if (isResolved) {
+    const findingsSnippet = g.resolution || 'Official grievance redressal inquiry completed and corrective actions implemented by the department.';
+    messagesHtml += `
+      <div class="whatsapp-bubble sent">
+        <div class="whatsapp-bubble-sender">
+          <span>Vignan University Redressal Order (Official ✓)</span>
+        </div>
+        <div class="whatsapp-bubble-text">Dear <strong>${escapeHtml(studentName)}</strong>, your grievance [<strong>${escapeHtml(grievanceNo)}</strong>] has been formally <strong>RESOLVED</strong>.
+
+Official Findings: "${escapeHtml(findingsSnippet)}"
+
+Please rate your satisfaction and submit feedback: [⭐ Rate &amp; Give Suggestions]</div>
+        ${!isAdmin ? `
+          <button type="button" class="whatsapp-bubble-action-btn" onclick="scrollToRatingCard()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span>Rate Redressal &amp; Feedback</span>
+          </button>
+        ` : `
+          <button type="button" class="whatsapp-bubble-action-btn" onclick="openResolutionLetterModal('${escapeHtml(grievanceNo)}')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span>View University Order Letter</span>
+          </button>
+        `}
+        <div class="whatsapp-bubble-footer">
+          <span>${timeStr2}</span>
+          ${doubleTicksSvg}
+        </div>
+      </div>
+    `;
+  }
+
+  // Message 4: If Student Submitted Feedback
+  if (hasRating) {
+    messagesHtml += `
+      <div class="whatsapp-bubble received">
+        <div class="whatsapp-bubble-sender" style="color: #0369a1;">
+          <span>${escapeHtml(studentName)} (Student Feedback)</span>
+        </div>
+        <div class="whatsapp-bubble-text">Redressal Satisfaction Feedback:
+★ <strong>${g.satisfaction_rating} / 5 Stars</strong> (${(window.RATING_LABELS && window.RATING_LABELS[g.satisfaction_rating]) || 'Verified'})
+${g.satisfaction_comment ? `\n"${escapeHtml(g.satisfaction_comment)}"` : ''}</div>
+        <div class="whatsapp-bubble-footer">
+          <span>${timeStr2}</span>
+        </div>
+      </div>
+
+      <div class="whatsapp-bubble sent">
+        <div class="whatsapp-bubble-sender">
+          <span>Vignan Grievance Cell (Official ✓)</span>
+        </div>
+        <div class="whatsapp-bubble-text">Thank you for confirming. Grievance <strong>${escapeHtml(grievanceNo)}</strong> has been formally updated to <strong>CLOSED</strong> in the university grievance registry.</div>
+        <div class="whatsapp-bubble-footer">
+          <span>${timeStr2}</span>
+          ${doubleTicksSvg}
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="whatsapp-chat-transcript" aria-label="Official WhatsApp Transcript">
+      <div class="whatsapp-chat-topbar">
+        <div class="whatsapp-chat-profile">
+          <div class="whatsapp-chat-avatar" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#075e54"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+          </div>
+          <div class="whatsapp-chat-title-box">
+            <div class="whatsapp-chat-name">
+              <span>Vignan Grievance Cell</span>
+              <span class="whatsapp-verified-badge" title="Verified University Official Channel" style="display:inline-flex;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#25D366"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              </span>
+            </div>
+            <div class="whatsapp-chat-status">Official Institutional Channel • Automated Delivery</div>
+          </div>
+        </div>
+        <div class="whatsapp-chat-encrypted-pill">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span>End-to-end Encrypted</span>
+        </div>
+      </div>
+      <div class="whatsapp-date-divider">${dateStr}</div>
+      ${messagesHtml}
+    </div>
+  `;
+}
+window.renderWhatsAppTranscript = renderWhatsAppTranscript;
 
 function previewStudentStar(num) {
   for (let i = 1; i <= 5; i++) {
