@@ -2034,6 +2034,10 @@ function renderWhatsAppTranscript(g, isAdmin = false) {
     </span>
   `;
 
+  const origin = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : 'https://vignan-student-grievance-agent.onrender.com';
+  const trackLink = `${origin}/?ref=${encodeURIComponent(grievanceNo)}`;
+  const rateLink = `${origin}/?ref=${encodeURIComponent(grievanceNo)}&action=rate`;
+
   let messagesHtml = '';
 
   // Message 1: Intake Notification Bubble
@@ -2046,7 +2050,7 @@ function renderWhatsAppTranscript(g, isAdmin = false) {
 
 • Category: ${catName}
 • Expected Resolution: 48h (Statutory SLA)
-• Track live: <span style="text-decoration:underline;color:#0369a1;">https://vignan-portal.edu/track?ref=${escapeHtml(grievanceNo)}</span></div>
+• Track live: <a href="${trackLink}" target="_blank" style="color:#0369a1;text-decoration:underline;font-weight:600;word-break:break-all;">${trackLink}</a></div>
       <div class="whatsapp-bubble-footer">
         <span>${timeStr1}</span>
         ${doubleTicksSvg}
@@ -2081,9 +2085,10 @@ This grievance has triggered statutory Anti-Ragging &amp; Proctorial safety prot
         </div>
         <div class="whatsapp-bubble-text">Dear <strong>${escapeHtml(studentName)}</strong>, your grievance [<strong>${escapeHtml(grievanceNo)}</strong>] has been formally <strong>RESOLVED</strong>.
 
-Official Findings: "${escapeHtml(findingsSnippet)}"
+• Official Findings: "${escapeHtml(findingsSnippet)}"
+• Rate Your Satisfaction &amp; Feedback: <a href="${rateLink}" target="_blank" style="color:#0369a1;text-decoration:underline;font-weight:600;word-break:break-all;">${rateLink}</a>
 
-Please rate your satisfaction and submit feedback: [⭐ Rate &amp; Give Suggestions]</div>
+Please click the link above to submit your 5-star satisfaction rating &amp; feedback:</div>
         <button type="button" class="whatsapp-bubble-action-btn" onclick="openResolutionLetterModal('${escapeHtml(grievanceNo)}')">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
           <span>View University Redressal Order</span>

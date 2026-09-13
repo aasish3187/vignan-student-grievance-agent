@@ -57,6 +57,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabTrack = document.getElementById('tabTrack');
     if (tabTrack) tabTrack.click();
   }
+
+  // Handle direct tracking / rating link from WhatsApp (?ref=GRV-... or ?rate=GRV-...)
+  const targetRef = urlParams.get('ref') || urlParams.get('rate');
+  const targetAction = urlParams.get('action');
+  if (targetRef) {
+    const tabTrack = document.getElementById('tabTrack');
+    if (tabTrack) tabTrack.click();
+    setTimeout(() => {
+      showDetail(targetRef);
+      if (targetAction === 'rate' || urlParams.has('rate')) {
+        setTimeout(() => {
+          scrollToRatingCard();
+        }, 850);
+      }
+    }, 350);
+  }
 });
 
 // ===== DASHBOARD STATS =====
@@ -1426,6 +1442,10 @@ function renderWhatsAppTranscript(g, isAdmin = false) {
     </span>
   `;
 
+  const origin = (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : 'https://vignan-student-grievance-agent.onrender.com';
+  const trackLink = `${origin}/?ref=${encodeURIComponent(grievanceNo)}`;
+  const rateLink = `${origin}/?ref=${encodeURIComponent(grievanceNo)}&action=rate`;
+
   let messagesHtml = '';
 
   // Message 1: Intake Notification Bubble
@@ -1438,7 +1458,7 @@ function renderWhatsAppTranscript(g, isAdmin = false) {
 
 • Category: ${catName}
 • Expected Resolution: 48h (Statutory SLA)
-• Track live: <span style="text-decoration:underline;color:#0369a1;">https://vignan-portal.edu/track?ref=${escapeHtml(grievanceNo)}</span></div>
+• Track live: <a href="${trackLink}" ${!isAdmin ? 'onclick="if(typeof scrollToDetailTimeline===\'function\'){event.preventDefault();scrollToDetailTimeline();}"' : 'target="_blank"'} style="color:#0369a1;text-decoration:underline;font-weight:600;word-break:break-all;">${trackLink}</a></div>
       ${!isAdmin ? `
         <button type="button" class="whatsapp-bubble-action-btn" onclick="scrollToDetailTimeline()">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -1479,13 +1499,14 @@ This grievance has triggered statutory Anti-Ragging &amp; Proctorial safety prot
         </div>
         <div class="whatsapp-bubble-text">Dear <strong>${escapeHtml(studentName)}</strong>, your grievance [<strong>${escapeHtml(grievanceNo)}</strong>] has been formally <strong>RESOLVED</strong>.
 
-Official Findings: "${escapeHtml(findingsSnippet)}"
+• Official Findings: "${escapeHtml(findingsSnippet)}"
+• Rate Your Satisfaction &amp; Feedback: <a href="${rateLink}" ${!isAdmin ? 'onclick="if(typeof scrollToRatingCard===\'function\'){event.preventDefault();scrollToRatingCard();}"' : 'target="_blank"'} style="color:#0369a1;text-decoration:underline;font-weight:600;word-break:break-all;">${rateLink}</a>
 
-Please rate your satisfaction and submit feedback: [⭐ Rate &amp; Give Suggestions]</div>
+Please click the link above or tap below to submit your 5-star satisfaction rating &amp; feedback:</div>
         ${!isAdmin ? `
           <button type="button" class="whatsapp-bubble-action-btn" onclick="scrollToRatingCard()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-            <span>Rate Redressal &amp; Feedback</span>
+            <span>⭐ Rate &amp; Give Suggestions</span>
           </button>
         ` : `
           <button type="button" class="whatsapp-bubble-action-btn" onclick="openResolutionLetterModal('${escapeHtml(grievanceNo)}')">

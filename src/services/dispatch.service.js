@@ -193,7 +193,8 @@ function sendResolutionNotice(data) {
     `Dear ${name},\n` +
     `Your grievance *${data.grievanceNo}* (${data.category}) has been formally *RESOLVED* by the authorized university committee.\n\n` +
     `• Official Findings: ${data.resolution ? (data.resolution.substring(0, 100) + '...') : 'Redressal order published'}\n` +
-    `• Rate Your Satisfaction: ${url}\n\n` +
+    `• Track Case & Submit Rating: ${url}\n\n` +
+    `Click the link above to view your case timeline and submit your satisfaction rating.\n` +
     `Your rating helps Vignan University maintain NAAC/UGC quality excellence.`;
 
   // Automated background server-to-phone dispatch (Twilio / CallMeBot)
