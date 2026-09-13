@@ -1195,45 +1195,99 @@ async function openCaseDossier(idOrNo) {
     }
 
     // 6c. Multi-Channel WhatsApp & SMS Dispatch Log
+    // 6c. Multi-Channel WhatsApp & SMS Dispatch Log
     const dispatchBox = document.getElementById('dossierDispatchBox');
     const dispatchList = document.getElementById('dossierDispatchList');
     if (dispatchBox) dispatchBox.style.display = 'block';
     if (dispatchList) {
-      let dispatchHtml = renderWhatsAppTranscript(d, true);
+      let dispatchHtml = '';
 
-      if (d.dispatch_logs && d.dispatch_logs.length > 0) {
-        dispatchHtml += `
-          <div style="margin-top: 14px; margin-bottom: 6px; font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            <span>Carrier Gateway Telemetry (${d.dispatch_logs.length} Logged)</span>
+      if (d.is_anonymous) {
+        dispatchHtml = `
+          <div class="whistleblower-airgap-notice" style="background:#fffbeb; border:1.5px solid #fde68a; border-radius:8px; padding:14px; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:8px; color:#b45309; font-weight:700; font-size:13px; margin-bottom:6px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <span>AIR-GAPPED CONFIDENTIAL WHISTLEBLOWER ROUTE</span>
+            </div>
+            <p style="font-size:12px; color:#78350f; line-height:1.5; margin:0 0 8px 0;">
+              <strong>Zero Phone Linkage Enforced:</strong> The complainant submitted this grievance anonymously. Under institutional privacy protocols, no phone number was collected, and no automated WhatsApp/SMS messages are dispatched to the student's personal device.
+            </p>
+            <div style="display:flex; align-items:center; gap:6px; font-size:11.5px; color:#92400e; background:rgba(245,158,11,0.15); padding:6px 10px; border-radius:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              <span>Case updates and satisfaction ratings are tracked strictly via Secret 6-Digit PIN on the portal.</span>
+            </div>
           </div>
         `;
-        d.dispatch_logs.forEach(log => {
-          const isAlert = log.alert_type === 'EMERGENCY_SOS';
-          const isResolve = log.alert_type === 'CASE_RESOLVED';
-          const badgeColor = isAlert ? '#fee2e2' : (isResolve ? '#dcfce7' : '#e0f2fe');
-          const textColor = isAlert ? '#991b1b' : (isResolve ? '#166534' : '#0369a1');
-          const borderCol = isAlert ? '#fca5a5' : (isResolve ? '#86efac' : '#7dd3fc');
-          const channelTitle = isAlert ? 'Anti-Ragging Squad SOS' : (isResolve ? 'Resolution & Rating' : 'Intake Acknowledgement');
 
-          dispatchHtml += `
-            <div class="dispatch-log-card" style="border-left: 3.5px solid ${textColor}; margin-top: 8px;">
-              <div class="dispatch-log-header">
-                <div style="display:flex; align-items:center; gap:6px;">
-                  <span style="background:${badgeColor}; color:${textColor}; border:1px solid ${borderCol}; padding:2px 8px; border-radius:10px; font-size:10.5px; font-weight:700;">
-                    ${log.channel || 'WHATSAPP'}
-                  </span>
-                  <strong style="font-size:12px; color:#1e293b;">${channelTitle}</strong>
-                </div>
-                <span class="dispatch-status-badge" style="background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0;">
-                  ${escapeHtml(log.status || 'DELIVERED')}
-                </span>
+        // If statutory Anti-Ragging SOS was dispatched to the university squad
+        if (d.dispatch_logs && d.dispatch_logs.length > 0) {
+          const squadLogs = d.dispatch_logs.filter(log => log.alert_type === 'EMERGENCY_SOS');
+          if (squadLogs.length > 0) {
+            dispatchHtml += `
+              <div style="margin-top: 10px; margin-bottom: 6px; font-size: 11px; font-weight: 700; color: #991b1b; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span>Statutory Anti-Ragging Flying Squad SOS Dispatched (${squadLogs.length})</span>
               </div>
-              <div class="dispatch-recipient">Recipient: <strong>${escapeHtml(log.recipient_phone || 'Authority Gate')}</strong> · Sent: ${new Date(log.dispatched_at).toLocaleString()}</div>
-              <div class="dispatch-transcript">"${escapeHtml(log.message_body)}"</div>
+            `;
+            squadLogs.forEach(log => {
+              dispatchHtml += `
+                <div class="dispatch-log-card" style="border-left: 3.5px solid #dc2626; margin-top: 8px; background:#fff1f2;">
+                  <div class="dispatch-log-header">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                      <span style="background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; padding:2px 8px; border-radius:10px; font-size:10.5px; font-weight:700;">
+                        ${log.channel || 'WHATSAPP'}
+                      </span>
+                      <strong style="font-size:12px; color:#991b1b;">Anti-Ragging Flying Squad Hotline</strong>
+                    </div>
+                    <span class="dispatch-status-badge" style="background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0;">
+                      ${escapeHtml(log.status || 'DELIVERED')}
+                    </span>
+                  </div>
+                  <div class="dispatch-recipient">Target: <strong>Proctorial Safety Desk (${escapeHtml(log.recipient_phone || 'Emergency Squad')})</strong> · ${new Date(log.dispatched_at).toLocaleString()}</div>
+                  <div class="dispatch-transcript" style="font-size:11.5px; color:#475569;">"${escapeHtml(log.message_body)}"</div>
+                </div>
+              `;
+            });
+          }
+        }
+      } else {
+        // Standard non-anonymous complainant
+        dispatchHtml = renderWhatsAppTranscript(d, true);
+
+        if (d.dispatch_logs && d.dispatch_logs.length > 0) {
+          dispatchHtml += `
+            <div style="margin-top: 14px; margin-bottom: 6px; font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              <span>Carrier Gateway Telemetry (${d.dispatch_logs.length} Logged)</span>
             </div>
           `;
-        });
+          d.dispatch_logs.forEach(log => {
+            const isAlert = log.alert_type === 'EMERGENCY_SOS';
+            const isResolve = log.alert_type === 'CASE_RESOLVED';
+            const badgeColor = isAlert ? '#fee2e2' : (isResolve ? '#dcfce7' : '#e0f2fe');
+            const textColor = isAlert ? '#991b1b' : (isResolve ? '#166534' : '#0369a1');
+            const borderCol = isAlert ? '#fca5a5' : (isResolve ? '#86efac' : '#7dd3fc');
+            const channelTitle = isAlert ? 'Anti-Ragging Squad SOS' : (isResolve ? 'Resolution & Rating' : 'Intake Acknowledgement');
+
+            dispatchHtml += `
+              <div class="dispatch-log-card" style="border-left: 3.5px solid ${textColor}; margin-top: 8px;">
+                <div class="dispatch-log-header">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="background:${badgeColor}; color:${textColor}; border:1px solid ${borderCol}; padding:2px 8px; border-radius:10px; font-size:10.5px; font-weight:700;">
+                      ${log.channel || 'WHATSAPP'}
+                    </span>
+                    <strong style="font-size:12px; color:#1e293b;">${channelTitle}</strong>
+                  </div>
+                  <span class="dispatch-status-badge" style="background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0;">
+                    ${escapeHtml(log.status || 'DELIVERED')}
+                  </span>
+                </div>
+                <div class="dispatch-recipient">Recipient: <strong>${escapeHtml(log.recipient_phone || 'Authority Gate')}</strong> · Sent: ${new Date(log.dispatched_at).toLocaleString()}</div>
+                <div class="dispatch-transcript">"${escapeHtml(log.message_body)}"</div>
+              </div>
+            `;
+          });
+        }
       }
       dispatchList.innerHTML = dispatchHtml;
     }
@@ -2011,7 +2065,8 @@ function formatWhatsAppPushText(txt) {
 
 function renderWhatsAppTranscript(g, isAdmin = false) {
   if (!g) return '';
-  const studentName = g.complainant_name || g.student_name || 'Student';
+  const isAnon = Boolean(g.is_anonymous);
+  const studentName = isAnon ? 'Anonymous Whistleblower' : (g.complainant_name || g.student_name || 'Student');
   const grievanceNo = g.grievance_no || 'GRV-2026';
   const roleName = typeof formatAdminAuthorityName === 'function' ? formatAdminAuthorityName(g.assigned_to_role) : (g.assigned_to_role || 'Department Authority');
   const catName = typeof formatAdminCategoryName === 'function' ? formatAdminCategoryName(g.category) : (g.category || 'General');
@@ -2143,12 +2198,12 @@ ${g.satisfaction_comment ? `\n"${escapeHtml(g.satisfaction_comment)}"` : ''}</di
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="#25D366"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
               </span>
             </div>
-            <div class="whatsapp-chat-status">Official Institutional Channel • Automated Delivery</div>
+            <div class="whatsapp-chat-status">${isAnon ? 'Confidential Whistleblower Mode • Air-Gapped (Zero Phone Tracing)' : 'Official Institutional Channel • Automated Delivery'}</div>
           </div>
         </div>
-        <div class="whatsapp-chat-encrypted-pill">
+        <div class="whatsapp-chat-encrypted-pill" style="${isAnon ? 'background:rgba(239,68,68,0.2);color:#fca5a5;' : ''}">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-          <span>End-to-end Encrypted</span>
+          <span>${isAnon ? '100% Identity Decoupled' : 'End-to-end Encrypted'}</span>
         </div>
       </div>
       <div class="whatsapp-date-divider">${dateStr}</div>
