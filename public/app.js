@@ -512,24 +512,6 @@ function showSuccess(data, info) {
       <span class="label">Evidence File</span>
       <span class="value">${escapeHtml(currentAttachment.name)} (Encrypted & Attached)</span>
     </div>` : ''}
-    ${!info.isAnon && info.phone ? `
-    <div class="whatsapp-dispatch-card">
-      <div class="whatsapp-dispatch-header">
-        <div class="whatsapp-dispatch-title">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-          <span>WhatsApp Case Receipt</span>
-        </div>
-        <span class="whatsapp-status-pill">Ready</span>
-      </div>
-      <p class="whatsapp-dispatch-desc">Official receipt prepared for <strong>+91 ${escapeHtml(info.phone.slice(-10))}</strong>. Click below to receive and view your formal case acknowledgment directly in WhatsApp.</p>
-      ${data.whatsappUrl ? `
-      <div class="whatsapp-dispatch-actions">
-        <a href="${data.whatsappUrl}" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-direct" id="btnOpenWhatsapp">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-          <span>Open & Receive on WhatsApp</span>
-        </a>
-      </div>` : ''}
-    </div>` : ''}
     ${isStatutory ? `
     <div class="success-detail-row" style="background:#fde8e8;margin:8px -8px -8px;padding:12px 8px;border-radius:0 0 8px 8px;">
       <span class="label" style="color:#d62828;">
