@@ -6,12 +6,51 @@
 
 const rateLimit = require('express-rate-limit');
 
-// Rate limiter for public grievance intake
+// 1. General API rate limiter (protects against DoS / automated script floods)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300, // Max 300 requests per 15 min per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: 'TOO_MANY_REQUESTS',
+    message: 'Too many requests from this network. System rate limit enforced for campus security.'
+  }
+});
+
+// 2. Authentication rate limiter (protects against password brute-forcing)
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Max 10 login attempts per 15 min
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: 'AUTH_RATE_LIMIT',
+    message: 'Too many failed officer sign-in attempts. For security reasons, please wait 15 minutes before retrying.'
+  }
+});
+
+// 3. Confidential PIN & Tracking rate limiter (protects against PIN brute-forcing)
+const trackingLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30, // Max 30 case lookups per 15 min
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: 'LOOKUP_RATE_LIMIT',
+    message: 'Too many tracking inquiries from this IP address. Please wait 15 minutes.'
+  }
+});
+
+// 4. Rate limiter for public grievance intake
 const intakeLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes window
   max: 15, // Limit each IP to 15 grievance submissions per window
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true,
+  legacyHeaders: false,
   message: {
     success: false,
     error: 'RATE_LIMIT_EXCEEDED',
@@ -19,11 +58,10 @@ const intakeLimiter = rateLimit({
   }
 });
 
-// Honeypot bot trap validator
+// 5. Honeypot bot trap validator
 function honeypotTrap(req, res, next) {
-  // If the hidden honeypot field is filled by a bot, reject silently or with generic response
   if (req.body && req.body._vignan_hp_check) {
-    console.warn(`[SECURITY] Spam bot detected and blocked from IP: ${req.ip}`);
+    console.warn(`[SECURITY HONEYPOT] Spam bot trapped and deflected from IP: ${req.ip}`);
     return res.status(200).json({
       success: true,
       data: {
@@ -35,4 +73,10 @@ function honeypotTrap(req, res, next) {
   next();
 }
 
-module.exports = { intakeLimiter, honeypotTrap };
+module.exports = {
+  apiLimiter,
+  loginLimiter,
+  trackingLimiter,
+  intakeLimiter,
+  honeypotTrap
+};

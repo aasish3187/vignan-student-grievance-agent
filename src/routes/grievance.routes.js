@@ -8,7 +8,8 @@ const router = express.Router();
 const grievanceService = require('../services/grievance.service');
 const { validateGrievanceSubmission, validateResolution, validateSatisfaction } = require('../middleware/validator');
 const { enforceStatutoryBypass, requireHumanDecision } = require('../middleware/guardrails');
-const { intakeLimiter, honeypotTrap } = require('../middleware/rate-limiter');
+const { intakeLimiter, trackingLimiter, honeypotTrap } = require('../middleware/rate-limiter');
+const { requireAuthority } = require('../middleware/auth');
 
 // POST /api/grievances — Submit a new grievance (protected by rate-limiter and bot trap)
 router.post('/',
@@ -74,7 +75,7 @@ router.get('/', (req, res) => {
 });
 
 // POST /api/grievances/track-student — Private student grievance tracker (Regd No + Phone)
-router.post('/track-student', (req, res) => {
+router.post('/track-student', trackingLimiter, (req, res) => {
   try {
     const { regd_no, phone } = req.body || {};
     if (!regd_no || !phone) {
@@ -96,7 +97,7 @@ router.post('/track-student', (req, res) => {
 });
 
 // POST /api/grievances/track-anonymous — Secure PIN-based anonymous tracking
-router.post('/track-anonymous', (req, res) => {
+router.post('/track-anonymous', trackingLimiter, (req, res) => {
   try {
     const { grievance_no, pin } = req.body || {};
     if (!grievance_no || !pin) {
@@ -124,8 +125,9 @@ router.get('/:id', (req, res) => {
   }
 });
 
-// PUT /api/grievances/:id/resolve — Resolve with reasoning
+// PUT /api/grievances/:id/resolve — Resolve with reasoning (Restricted to Institutional Officers)
 router.put('/:id/resolve',
+  requireAuthority,
   validateResolution,
   requireHumanDecision,
   (req, res) => {

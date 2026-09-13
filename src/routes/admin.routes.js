@@ -9,8 +9,11 @@ const { scanAndEscalate } = require('../services/escalation.service');
 const { getDb } = require('../config/database');
 const { ROUTING_MAP } = require('../config/routing-rules');
 const notificationService = require('../services/notification.service');
-
+const { requireAuthority } = require('../middleware/auth');
 const { buildScopeClause } = require('../services/analytics.service');
+
+// Enforce officer clearance for all admin routes
+router.use(requireAuthority);
 
 // POST /api/admin/sla-check — Trigger SLA breach scan + auto-escalation
 router.post('/sla-check', (req, res) => {

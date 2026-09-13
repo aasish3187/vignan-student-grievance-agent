@@ -9,6 +9,7 @@ const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
 const { AUTHORITY_PROFILES, STUDENT_PROFILES, resolveUserProfile } = require('../middleware/auth');
+const { loginLimiter } = require('../middleware/rate-limiter');
 
 /**
  * GET /api/auth/officers
@@ -54,7 +55,7 @@ router.get('/students', (req, res) => {
  * POST /api/auth/login
  * Dual-Track Authentication: Supports both Verified Students and Institutional Authorities
  */
-router.post('/login', (req, res) => {
+router.post('/login', loginLimiter, (req, res) => {
   const { username, password, portal } = req.body || {};
 
   if (!username) {

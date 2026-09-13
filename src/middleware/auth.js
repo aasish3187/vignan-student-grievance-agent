@@ -199,26 +199,50 @@ function authMiddleware(req, res, next) {
   const authHeader = req.headers['authorization'];
   if (!userId && authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
-    // In demo token schema: 'vignan_token_<hex>'
+    // Future expansion: verify JWT / stateful session store
   }
 
   const roleOverride = req.headers['x-user-role'];
 
   let user = resolveUserProfile(userId);
-  if (!user) {
-    if (roleOverride === 'STUDENT') {
-      user = STUDENT_PROFILES['student-001'];
-    } else {
-      user = AUTHORITY_PROFILES['admin'];
-    }
-  }
-  req.user = { ...user };
 
-  if (roleOverride) {
-    req.user.role = roleOverride.toUpperCase();
+  if (user) {
+    req.user = { ...user };
+    // Only allow role override if the authenticated identity is already an administrative officer
+    if (roleOverride && user.role !== 'STUDENT') {
+      req.user.role = roleOverride.toUpperCase();
+    }
+  } else {
+    // SECURITY HARDENING: Never default an unauthenticated request to ADMIN!
+    req.user = {
+      id: 'guest-student',
+      username: 'anonymous.guest',
+      role: 'STUDENT',
+      isGuest: true
+    };
   }
 
   next();
 }
 
-module.exports = { authMiddleware, AUTHORITY_PROFILES, STUDENT_PROFILES, resolveUserProfile };
+/**
+ * Strict RBAC Guardrail: Rejects unauthorized access to sensitive officer endpoints
+ */
+function requireAuthority(req, res, next) {
+  if (!req.user || req.user.role === 'STUDENT' || req.user.isGuest) {
+    return res.status(403).json({
+      success: false,
+      error: 'ACCESS_DENIED',
+      message: 'Access Denied: Institutional officer clearance required. This unauthorized attempt has been logged.'
+    });
+  }
+  next();
+}
+
+module.exports = {
+  authMiddleware,
+  requireAuthority,
+  AUTHORITY_PROFILES,
+  STUDENT_PROFILES,
+  resolveUserProfile
+};

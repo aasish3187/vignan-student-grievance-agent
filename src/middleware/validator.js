@@ -5,8 +5,32 @@
 
 const { VALID_CATEGORIES } = require('../config/routing-rules');
 
+/**
+ * Strips dangerous HTML tags, javascript pseudo-protocols, and inline event handlers
+ * to prevent Stored & Reflected Cross-Site Scripting (XSS).
+ */
+function sanitizeText(str) {
+  if (typeof str !== 'string') return str;
+  return str
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=\s*(['"]).*?\1/gi, '')
+    .replace(/on\w+\s*=\s*[^>\s]+/gi, '')
+    .trim();
+}
+
 function validateGrievanceSubmission(req, res, next) {
-  const { description, category } = req.body;
+  if (req.body) {
+    if (req.body.description) req.body.description = sanitizeText(req.body.description);
+    if (req.body.complainant_name) req.body.complainant_name = sanitizeText(req.body.complainant_name);
+    if (req.body.complainant_phone) req.body.complainant_phone = sanitizeText(req.body.complainant_phone);
+    if (req.body.complainant_regd_no) req.body.complainant_regd_no = sanitizeText(req.body.complainant_regd_no);
+  }
+
+  const { description, category } = req.body || {};
   const errors = [];
 
   if (!description || description.trim().length < 20) {
@@ -34,7 +58,11 @@ function validateGrievanceSubmission(req, res, next) {
 }
 
 function validateResolution(req, res, next) {
-  const { resolution } = req.body;
+  if (req.body && req.body.resolution) {
+    req.body.resolution = sanitizeText(req.body.resolution);
+  }
+
+  const { resolution } = req.body || {};
   if (!resolution || resolution.trim().length < 10) {
     return res.status(400).json({
       error: 'VALIDATION_ERROR',
@@ -45,7 +73,11 @@ function validateResolution(req, res, next) {
 }
 
 function validateSatisfaction(req, res, next) {
-  const { rating } = req.body;
+  if (req.body && req.body.comment) {
+    req.body.comment = sanitizeText(req.body.comment);
+  }
+
+  const { rating } = req.body || {};
   if (!rating || rating < 1 || rating > 5) {
     return res.status(400).json({
       error: 'VALIDATION_ERROR',
@@ -55,4 +87,9 @@ function validateSatisfaction(req, res, next) {
   next();
 }
 
-module.exports = { validateGrievanceSubmission, validateResolution, validateSatisfaction };
+module.exports = {
+  sanitizeText,
+  validateGrievanceSubmission,
+  validateResolution,
+  validateSatisfaction
+};
