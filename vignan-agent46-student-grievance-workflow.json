@@ -54,9 +54,9 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=You are Agent 46, the autonomous AI Student Grievance Redressal and Policy Officer for Vignan's Foundation for Science, Technology & Research (VFSTR).\n\nEvaluate the complainant's submission:\nCategory: {{ $json.category }}\nSubject: {{ $json.subject }}\nDescription: {{ $json.description }}\nDepartment: {{ $json.department }}\nIs Anonymous: {{ $json.isAnonymous }}\n\nRules & Statutory Directives:\n1. Under UGC Regulations 2023 and AICTE Anti-Ragging Directives, any mention of physical intimidation, ragging, assault, or hostel bullying MUST be assigned 'CRITICAL' severity and routed strictly to 'Anti-Ragging Committee Chair' (HoD BYPASS MANDATORY).\n2. Any mention of sexual harassment or gender inequity MUST be routed to 'Internal Complaints Committee (ICC) Chair' with 'CRITICAL' priority under POSH Act 2013.\n3. Departmental academic disputes (CIE marks, attendance errors, faculty conflicts) route to 'HoD [Department]' with 'HIGH' or 'MEDIUM' severity.\n4. Campus facilities, canteen, transport, or hostel maintenance route to 'Dean of Student Affairs'.\n\nPerform duplicate detection, verify UGC SLAs, check historical disciplinary precedents, and output a valid JSON object with keys: category, priority, targetAuthority, statutoryBypass, reasoning.",
+        "text": "=You are Agent 46, the autonomous AI Student Grievance Redressal and Policy Officer for Vignan's Foundation for Science, Technology & Research (VFSTR).\n\nEvaluate the complainant's submission:\nCategory: {{ $json.category }}\nSubject: {{ $json.subject }}\nDescription: {{ $json.description }}\nDepartment: {{ $json.department }}\nIs Anonymous: {{ $json.isAnonymous }}\n\nMANDATORY AI TOOL INVOCATION PROTOCOL:\n1. You MUST consult the 'ugc_policy_sla_retriever' tool for regulatory details, statutory resolution SLA deadlines, and 15-day appellate escalation rules.\n2. You MUST search historical precedents using the 'precedent_ruling_matcher' tool when making classification, disciplinary benchmarking, and routing decisions.\n\nStatutory Directives:\n- Any physical intimidation, ragging, assault, or hostel bullying MUST be assigned 'CRITICAL' severity and routed strictly to 'Anti-Ragging Committee Chair' (HoD BYPASS MANDATORY under AICTE/UGC rules).\n- Any sexual harassment or gender discrimination MUST be routed to 'Internal Complaints Committee (ICC) Chair' with 'CRITICAL' priority under POSH Act 2013.\n- Academic disputes (marks, attendance, CIE) route to 'HoD [Department]' with 'HIGH' or 'MEDIUM' severity.\n- Campus facilities, mess, transport, and maintenance route to 'Dean of Student Affairs'.\n\nOutput a valid JSON object with keys: category, priority, targetAuthority, statutoryBypass, reasoning.",
         "options": {
-          "systemMessage": "You are a statutory institutional grievance classifier adhering strictly to UGC (Redressal of Grievances of Students) Regulations 2023, AICTE Anti-Ragging regulations, and POSH Act 2013. Always return valid JSON."
+          "systemMessage": "You are a statutory institutional grievance classifier adhering strictly to UGC Regulations 2023, AICTE Anti-Ragging regulations, and POSH Act 2013. You must actively use connected tools to verify regulatory SLAs and benchmark precedents before returning JSON."
         }
       },
       "id": "node-ai-agent-core",
@@ -86,7 +86,7 @@
       "credentials": {
         "googlePalmApi": {
           "id": "vignan-gemini-credentials",
-          "name": "Google Gemini API"
+          "name": "Google Gemini API Credentials"
         }
       }
     },
@@ -106,7 +106,7 @@
     {
       "parameters": {
         "name": "ugc_policy_sla_retriever",
-        "description": "Retrieves official UGC 2023 and Vignan University grievance resolution SLAs, escalation limits, and 15-day appellate windows.",
+        "description": "Consult the UGC Policy & SLA Knowledge tool for regulatory details, statutory resolution deadlines, and 15-day appellate rules.",
         "jsCode": "// Dynamic Query against UGC 2023 Regulations & Vignan University Academic Grievance Policy\nreturn JSON.stringify({\n  regulatoryBody: 'University Grants Commission (UGC)',\n  statutoryFramework: 'Redressal of Grievances of Students Regulations 2023',\n  slaHours: {\n    'CRITICAL': 24,\n    'HIGH': 72,\n    'MEDIUM': 120,\n    'LOW': 240\n  },\n  appellateWindowDays: 15,\n  ombudspersonEscalationAllowed: true,\n  raggingDirectBypassMandatory: true,\n  poshConfidentialityMandatory: true\n});"
       },
       "id": "node-tool-ugc-sla",
@@ -121,7 +121,7 @@
     {
       "parameters": {
         "name": "precedent_ruling_matcher",
-        "description": "Searches historical university rulings to find disciplinary benchmarks, recommended remedial actions, and past committee orders.",
+        "description": "Search historical precedents using the Precedent Matcher tool when making classification and routing decisions.",
         "jsCode": "// Semantic retrieval from Vignan University Grievance Archives (2024-2026)\nreturn JSON.stringify({\n  matchFound: true,\n  precedentCase: 'GRV-2025-0842',\n  category: 'Evaluation Dispute',\n  ruling: 'Independent re-evaluation of continuous internal evaluation scripts conducted; attendance updated under medical leave clause.',\n  disciplinaryBenchmark: 'Faculty counseling and mandatory transparent grading key publication.',\n  consistencyScore: 0.94\n});"
       },
       "id": "node-tool-precedents",
@@ -232,7 +232,7 @@
       "credentials": {
         "postgres": {
           "id": "vignan-supabase-postgres",
-          "name": "Vignan Supabase PostgreSQL"
+          "name": "Vignan Supabase PostgreSQL Credentials"
         }
       },
       "continueOnFail": true
@@ -253,7 +253,7 @@
       "credentials": {
         "postgres": {
           "id": "vignan-supabase-postgres",
-          "name": "Vignan Supabase PostgreSQL"
+          "name": "Vignan Supabase PostgreSQL Credentials"
         }
       },
       "continueOnFail": true
@@ -274,7 +274,7 @@
       "credentials": {
         "postgres": {
           "id": "vignan-supabase-postgres",
-          "name": "Vignan Supabase PostgreSQL"
+          "name": "Vignan Supabase PostgreSQL Credentials"
         }
       },
       "continueOnFail": true
@@ -295,7 +295,7 @@
       "credentials": {
         "postgres": {
           "id": "vignan-supabase-postgres",
-          "name": "Vignan Supabase PostgreSQL"
+          "name": "Vignan Supabase PostgreSQL Credentials"
         }
       },
       "continueOnFail": true
@@ -303,25 +303,10 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.twilio.com/2010-04-01/Accounts/AC_DUMMY/Messages.json",
+        "url": "https://vignan-student-grievance-agent.onrender.com/api/dispatch/whatsapp",
         "sendBody": true,
-        "specifyBody": "formUrlencoded",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "To",
-              "value": "=whatsapp:{{ $('4. Robust LLM Output Parser & Statutory Fallback').item.json.phone }}"
-            },
-            {
-              "name": "From",
-              "value": "whatsapp:+14155238886"
-            },
-            {
-              "name": "Body",
-              "value": "=🏛️ *VFSTR Student Grievance Redressal Cell*\n\nDear Student,\nYour grievance has been formally registered under UGC 2023 regulations.\n\n📋 *Case ID:* {{ $('4. Robust LLM Output Parser & Statutory Fallback').item.json.trackingId }}\n📂 *Category:* {{ $('4. Robust LLM Output Parser & Statutory Fallback').item.json.category }}\n⚡ *Priority:* {{ $('4. Robust LLM Output Parser & Statutory Fallback').item.json.priority }}\n⏳ *Status:* ASSIGNED TO STATUTORY AUTHORITY\n\n🔍 *Live Tracking Portal:*\nhttps://vignan-student-grievance-agent.onrender.com/?track={{ $('4. Robust LLM Output Parser & Statutory Fallback').item.json.trackingId }}"
-            }
-          ]
-        },
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"to\": \"{{ $('4. Robust LLM Output Parser & Statutory Fallback').item.json.phone }}\",\n  \"trackingId\": \"{{ $('4. Robust LLM Output Parser & Statutory Fallback').item.json.trackingId }}\",\n  \"category\": \"{{ $('4. Robust LLM Output Parser & Statutory Fallback').item.json.category }}\",\n  \"priority\": \"{{ $('4. Robust LLM Output Parser & Statutory Fallback').item.json.priority }}\",\n  \"trackingUrl\": \"https://vignan-student-grievance-agent.onrender.com/?track={{ $('4. Robust LLM Output Parser & Statutory Fallback').item.json.trackingId }}\"\n}",
         "options": {}
       },
       "id": "node-whatsapp-dispatch",
@@ -333,16 +318,16 @@
         350
       ],
       "credentials": {
-        "twilioApi": {
-          "id": "vignan-twilio-credentials",
-          "name": "Vignan Twilio Credentials"
+        "httpHeaderAuth": {
+          "id": "vignan-api-gateway-auth",
+          "name": "Vignan API Gateway Credentials"
         }
       },
       "continueOnFail": true
     },
     {
       "parameters": {
-        "jsCode": "// Robust Error Handling & Cryptographic University Redressal Order Stamping\nconst tracking = $('4. Robust LLM Output Parser & Statutory Fallback').item.json;\nconst dispatchRef = 'VFSTR/GRC/' + new Date().getFullYear() + '/ORD-' + Math.floor(1000 + Math.random() * 9000);\n\n// Error Handling Check\nlet dispatchDeliveryStatus = 'DISPATCHED_CONFIRMED';\nif ($json.error || ($('6. Multi-Carrier WhatsApp Dispatch Gateway').item && $('6. Multi-Carrier WhatsApp Dispatch Gateway').item.json.error)) {\n  dispatchDeliveryStatus = 'LOGGED_FOR_RETRY';\n}\n\nreturn [{\n  json: {\n    status: 'SUCCESS',\n    dispatchStatus: dispatchDeliveryStatus,\n    message: 'Grievance officially registered and routed under UGC 2023 statutory regulations.',\n    trackingId: tracking.trackingId,\n    dispatchRef: dispatchRef,\n    category: tracking.category,\n    priority: tracking.priority,\n    isAnonymous: tracking.isAnonymous,\n    secretPin: tracking.secretPin,\n    appellateDays: 15,\n    portalUrl: 'https://vignan-student-grievance-agent.onrender.com/'\n  }\n}];"
+        "jsCode": "// Robust Error Handling & Cryptographic University Redressal Order Stamping\nconst tracking = $('4. Robust LLM Output Parser & Statutory Fallback').item.json;\nconst dispatchRef = 'VFSTR/GRC/' + new Date().getFullYear() + '/ORD-' + Math.floor(1000 + Math.random() * 9000);\n\n// Verify WhatsApp and Database Write Status\nlet dispatchDeliveryStatus = 'DISPATCHED_CONFIRMED';\nif ($json.error || ($('6. Multi-Carrier WhatsApp Dispatch Gateway').item && $('6. Multi-Carrier WhatsApp Dispatch Gateway').item.json.error)) {\n  dispatchDeliveryStatus = 'LOGGED_FOR_ASYNC_RETRY';\n}\n\nreturn [{\n  json: {\n    status: 'SUCCESS',\n    dispatchStatus: dispatchDeliveryStatus,\n    message: 'Grievance officially registered and routed under UGC 2023 statutory regulations.',\n    trackingId: tracking.trackingId,\n    dispatchRef: dispatchRef,\n    category: tracking.category,\n    priority: tracking.priority,\n    isAnonymous: tracking.isAnonymous,\n    secretPin: tracking.secretPin,\n    appellateDays: 15,\n    portalUrl: 'https://vignan-student-grievance-agent.onrender.com/'\n  }\n}];"
       },
       "id": "node-resolution-order-stamp",
       "name": "7. Redressal Order Stamping & Resilient Error Handler",
@@ -384,7 +369,7 @@
       "credentials": {
         "postgres": {
           "id": "vignan-supabase-postgres",
-          "name": "Vignan Supabase PostgreSQL"
+          "name": "Vignan Supabase PostgreSQL Credentials"
         }
       },
       "continueOnFail": true
@@ -405,7 +390,7 @@
       "credentials": {
         "postgres": {
           "id": "vignan-supabase-postgres",
-          "name": "Vignan Supabase PostgreSQL"
+          "name": "Vignan Supabase PostgreSQL Credentials"
         }
       }
     },
@@ -425,6 +410,36 @@
       "position": [
         2200,
         540
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {},
+      "id": "node-error-trigger",
+      "name": "10. Pipeline & Database Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        220,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://vignan-student-grievance-agent.onrender.com/api/admin/system-alert",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"alertType\": \"CRITICAL_WORKFLOW_FAILURE\",\n  \"executionId\": \"{{ $execution.id }}\",\n  \"workflowName\": \"{{ $workflow.name }}\",\n  \"errorMessage\": \"{{ $json.execution.error.message }}\",\n  \"failedNode\": \"{{ $json.execution.lastNodeExecuted }}\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\",\n  \"notifiedAdmin\": \"admin.registrar@vignan.ac.in\"\n}",
+        "options": {}
+      },
+      "id": "node-admin-error-alert",
+      "name": "11. Admin Critical Incident Alert & Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        840
       ],
       "continueOnFail": true
     }
@@ -642,6 +657,17 @@
           }
         ]
       ]
+    },
+    "10. Pipeline & Database Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "11. Admin Critical Incident Alert & Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -650,8 +676,8 @@
   "staticData": null,
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "vignan-hackathon-2026-agent46-v4"
+    "instanceId": "vignan-hackathon-2026-agent46-v5"
   },
   "pinData": {},
-  "versionId": "agent46-vignan-2026-v4"
+  "versionId": "agent46-vignan-2026-v5"
 }
