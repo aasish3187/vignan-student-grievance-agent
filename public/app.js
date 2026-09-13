@@ -1418,8 +1418,8 @@ function scrollToDetailTimeline() {
 window.scrollToDetailTimeline = scrollToDetailTimeline;
 
 function renderWhatsAppTranscript(g, isAdmin = false) {
-  if (!g) return '';
-  const studentName = g.complainant_name || g.student_name || 'Student';
+  const isAnon = Boolean(g.is_anonymous);
+  const studentName = isAnon ? 'Anonymous Whistleblower' : (g.complainant_name || g.student_name || 'Student');
   const grievanceNo = g.grievance_no || 'GRV-2026';
   const roleName = typeof formatAuthorityName === 'function' ? formatAuthorityName(g.assigned_to_role) : (g.assigned_to_role || 'Department Authority');
   const catName = typeof formatCategoryName === 'function' ? formatCategoryName(g.category) : (g.category || 'General');
@@ -1564,12 +1564,12 @@ ${g.satisfaction_comment ? `\n"${escapeHtml(g.satisfaction_comment)}"` : ''}</di
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="#25D366"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
               </span>
             </div>
-            <div class="whatsapp-chat-status">Official Institutional Channel • Automated Delivery</div>
+            <div class="whatsapp-chat-status">${isAnon ? 'Confidential Whistleblower Mode • Air-Gapped (Zero Phone Tracing)' : 'Official Institutional Channel • Automated Delivery'}</div>
           </div>
         </div>
-        <div class="whatsapp-chat-encrypted-pill">
+        <div class="whatsapp-chat-encrypted-pill" style="${isAnon ? 'background:rgba(239,68,68,0.2);color:#fca5a5;' : ''}">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-          <span>End-to-end Encrypted</span>
+          <span>${isAnon ? '100% Identity Decoupled' : 'End-to-end Encrypted'}</span>
         </div>
       </div>
       <div class="whatsapp-date-divider">${dateStr}</div>
